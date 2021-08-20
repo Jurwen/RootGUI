@@ -642,7 +642,7 @@ void glArea::draw_lines() {
 	else if (line_color == Jet) {
 		glBegin(GL_LINES);
 		for (int j = 0; j < edgeList.size(); j++) {
-			COLOR edge_color = GetColor(jet_max - (radius[edgeList[j][0]]+ radius[edgeList[j][1]]/2), jet_min, jet_max);
+			COLOR edge_color = GetColor(radius[edgeList[j][0]]+ radius[edgeList[j][1]]/2, jet_min, jet_max);
 			glColor4f((float)edge_color.r, (float)edge_color.g, (float)edge_color.b, 1.0);
 			glVertex3f(vertexList[edgeList[j][0]][0], vertexList[edgeList[j][0]][1], vertexList[edgeList[j][0]][2]);
 			glVertex3f(vertexList[edgeList[j][1]][0], vertexList[edgeList[j][1]][1], vertexList[edgeList[j][1]][2]);
