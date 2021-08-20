@@ -19,8 +19,6 @@ public slots:
 	void showMeshCheckBox(int _s);
 	void alphaChanged(int _s);
 	void skelWidthChanged(int _s);
-	void radiusColorCheckBox(int _s);
-	void hierarchyColorCheckBox(int _s);
 	void jetMinSpinChanged(double _s);
 	void jetMaxSpinChanged(double _s);
 	void meshColorRedChanged(int _s);

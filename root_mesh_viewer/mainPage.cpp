@@ -14,14 +14,14 @@ mainPage::mainPage(QWidget *parent)
 	QObject::connect(ui->meshColorGreenSlider, SIGNAL(valueChanged(int)), this, SLOT(meshColorGreenChanged(int)));
 	QObject::connect(ui->meshColorBlueSlider, SIGNAL(valueChanged(int)), this, SLOT(meshColorBlueChanged(int)));
 	QObject::connect(ui->skelWidthSlider, SIGNAL(valueChanged(int)), this, SLOT(skelWidthChanged(int)));
-	QObject::connect(ui->radiusColor, SIGNAL(stateChanged(int)), this, SLOT(radiusColorCheckBox(int)));
+	
 	QObject::connect(ui->jetMinBox, SIGNAL(valueChanged(double)), this, SLOT(jetMinSpinChanged(double)));
 	QObject::connect(ui->jetMaxBox, SIGNAL(valueChanged(double)), this, SLOT(jetMaxSpinChanged(double)));
 	QObject::connect(ui->meshFileBrowseBtn, SIGNAL(clicked()), this, SLOT(browseMeshClicked()));
 	QObject::connect(ui->meshFileBrowseBtn_obj, SIGNAL(clicked()), this, SLOT(browseMeshClicked_obj()));
 	QObject::connect(ui->skelFileBrowseBtn, SIGNAL(clicked()), this, SLOT(browseSkelClicked()));
 	QObject::connect(ui->annotationFileBrowseBtn, SIGNAL(clicked()), this, SLOT(browseAnnotationClicked()));
-	QObject::connect(ui->hierarchyColor, SIGNAL(stateChanged(int)), this, SLOT(hierarchyColorCheckBox(int)));
+
 	QObject::connect(ui->showLvl0Root, SIGNAL(stateChanged(int)), this, SLOT(showLvl0RootCheckBox(int)));
 	QObject::connect(ui->showLvl1Root, SIGNAL(stateChanged(int)), this, SLOT(showLvl1RootCheckBox(int)));
 	QObject::connect(ui->showLvl2Root, SIGNAL(stateChanged(int)), this, SLOT(showLvl2RootCheckBox(int)));
@@ -75,31 +75,7 @@ void mainPage::skelWidthChanged(int _s) {
 	area->line_width = 0.01 + 2 * (ui->skelWidthSlider->maximum() - (float)_s) / (ui->skelWidthSlider->maximum() - ui->skelWidthSlider->minimum());
 }
 
-void mainPage::radiusColorCheckBox(int _s) {
-	ui->statusBar->showMessage("changing the skeleton color with radius");
-	if (_s == Qt::Checked) { 
-		 
-		ui->hierarchyColor->setCheckState(Qt::Unchecked);
-		area->line_color = Jet;
-	}
-	else {
-		area->line_color = Normal;
-		ui->statusBar->showMessage("changing the skeleton color to normal");
-	}
-}
 
-void mainPage::hierarchyColorCheckBox(int _s) {
-	ui->statusBar->showMessage("changing the skeleton color with hierarchy");
-	if (_s == Qt::Checked) { 
-		
-		ui->radiusColor->setCheckState(Qt::Unchecked);
-		area->line_color = Hierarchy;
-	}
-	else {
-		area->line_color = Normal;
-		ui->statusBar->showMessage("changing the skeleton color to normal");
-	}
-}
 
 void mainPage::jetMinSpinChanged(double _s)
 {
