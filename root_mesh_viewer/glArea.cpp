@@ -451,8 +451,8 @@ glArea::glArea(QWidget *parent) :QOpenGLWidget(parent) {
 	if (getSkeleton(vertexList, edgeList, "591-4-topo-with-plane.ply", level, radius) == 1) {
 		cout << "Successfully initiated ply data... " << endl;
 	}
-	//mesh = ReadOffFile("2020_PlantHaven_RT_591-4_2021-rewash_109um.off");
-	mesh = ReaderOBj("smooth.obj");
+	mesh = ReadOffFile("2020_PlantHaven_RT_591-4_2021-rewash_109um.off");
+	//mesh = ReaderOBj("smooth.obj");
 	//if (readAnnotation(whorls, nodalRoots, "591-4-topo-with-plane-annotations.txt", cent, n) == 1) {
 	//	cout << "Successfully initiated annotation data..." << endl;
 	//}
