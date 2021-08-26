@@ -69,10 +69,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);C:\research\Root Batch\third-party\Trimesh2-master\Trimesh2-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);..\third-party\Trimesh2-master\Trimesh2-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\research\Root Batch\third-party\freeglut lib;$(Qt_LIBPATH_);C:\research\Root Batch\third-party\Trimesh2-master\Trimesh2-master\util;C:\research\Root Batch\third-party\Trimesh2-master\Trimesh2-master\include;C:\research\Root Batch\third-party\Trimesh2-master\Trimesh2-master\gluit;C:\research\Root Batch\third-party\Trimesh2-master\Trimesh2-master\lib;C:\research\Root Batch\third-party\Trimesh2-master\Trimesh2-master\lib_new\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\third-party\freeglut lib;$(Qt_LIBPATH_);..\third-party\Trimesh2-master\Trimesh2-master\util;..\third-party\Trimesh2-master\Trimesh2-master\include;..\third-party\Trimesh2-master\Trimesh2-master\gluit;..\third-party\Trimesh2-master\Trimesh2-master\lib;..\third-party\Trimesh2-master\Trimesh2-master\lib_new\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(Qt_LIBS_);kernel32.lib;trimesh.lib;glut32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
