@@ -14,6 +14,7 @@ How to use:
 - Please remind that Once viewing the traits, have a correct correspondence between skeleton and annotation file. 
 
 Contact: 
-yiwen.ju@wustl.edu
+- Dan Zeng (danzeng@wustl.edu)
+- Yiwen Ju (yiwen.ju@wustl.edu)
 
 
