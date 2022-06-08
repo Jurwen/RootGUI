@@ -122,7 +122,7 @@ myMesh * ReaderOBj(string fname2) {
 	fstream f;
 	f.open(fname2, ios::in);
 	if (!f.is_open()) {
-		cout << "文件打开出错" << endl;
+		cout << "not opened" << endl;
 	}
 	vector<vector<GLfloat>> vset;
 	vector<vector<GLint>> fset;
@@ -144,7 +144,7 @@ myMesh * ReaderOBj(string fname2) {
 			}
 			else {
 				if (ans != "") {
-					parameters.push_back(ans); //取出字符串中的元素，以空格切分
+					parameters.push_back(ans);
 					ans = "";
 				}
 			}
@@ -184,9 +184,6 @@ myMesh * ReaderOBj(string fname2) {
 	}
 	f.close();
 	myMesh *meshs = new myMesh();      
-//    cout << fset.size() << endl;
-//    cout << vset.size() << endl;
-	//向结构体进行转换
 	int vert_number = vset.size();
 	int face_number = fset.size();
 	meshs->verts = new Vertex[vert_number + 1];
@@ -313,10 +310,10 @@ int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileN
 						}
 					}
 					else {
-						whorls.whorlAbove.push_back(totalWhorls[whorlNum]);
+						whorls.whorlBelow.push_back(totalWhorls[whorlNum]);
 						cout << whorlNum << " - below the soil: " << endl;
 						for (int i = 0; i < totalWhorls[whorlNum].size(); i++) {
-							cout << totalWhorls[whorlNum][i] << endl;
+							cout << whorls.whorlBelow[whorlNum][i] << endl;
 						}
 					}
 				}
@@ -375,8 +372,7 @@ myMesh * ReadOffFile(const char *filename)
 	int i;
 	FILE *fp;                                      
 	if (!(fp = fopen(filename, "r"))) {
-		cout << "无法打开文件" << endl;
-		return 0;
+		cout << "fail to open" << endl;
 	}
 	myMesh *mesh = new myMesh();
 	int vert_number = 0;
@@ -432,13 +428,10 @@ myMesh * ReadOffFile(const char *filename)
 			get_normal(face);
 		}
 		else {
-			cout << "格式存在错误！" << endl;
 			break;
 		}
 	}
-	//判断实际的 面 的数目是否和要求数目一样！
 	if (face_number != mesh->face_number) {
-		cout << "面的数目与实际不符" << endl;
 	}
 	fclose(fp);
 	return mesh;
@@ -448,14 +441,19 @@ GLuint lineName;
 
 glArea::glArea(QWidget *parent) :QOpenGLWidget(parent) {
 	cout << "creating GLArea." << endl;
-	if (getSkeleton(vertexList, edgeList, "591-4-topo-with-plane.ply", level, radius) == 1) {
+	vertexList = { {0} };
+	edgeList = { {0} };
+	level = {0};
+	radius = {0};
+	/*if (getSkeleton(vertexList, edgeList, "591-4-topo-with-plane.ply", level, radius) == 1) {
 		cout << "Successfully initiated ply data... " << endl;
-	}
+	}*/
 	mesh = ReadOffFile("2020_PlantHaven_RT_591-4_2021-rewash_109um.off");
-	//mesh = ReaderOBj("smooth.obj");
-	//if (readAnnotation(whorls, nodalRoots, "591-4-topo-with-plane-annotations.txt", cent, n) == 1) {
-	//	cout << "Successfully initiated annotation data..." << endl;
-	//}
+	/*mesh = ReaderOBj("smooth.obj");*/
+	cout << "Sucessfully initiated mesh data..." << endl;
+	if (readAnnotation(whorls, nodalRoots, "591-4-topo-with-plane-annotations.txt", cent, n) == 1) {
+		cout << "Successfully initiated annotation data..." << endl;
+	}
 	isRotate = false;
 	isTranslate = false;
 	if_face = false;
@@ -470,7 +468,10 @@ glArea::glArea(QWidget *parent) :QOpenGLWidget(parent) {
 	line_color = Normal;
 	mesh_colorR = 1.0;
 	mesh_colorG = 1.0;
-	mesh_colorB = 0.0;
+	mesh_colorB = 1.0;
+	back_colorR = 1.0;
+	back_colorG = 1.0;
+	back_colorB = 1.0;
 	jet_max = (double)*max_element(radius.begin(), radius.end());
 	jet_min = (double)*min_element(radius.begin(), radius.end());
 }
@@ -652,9 +653,10 @@ void glArea::draw_lines() {
 	else if (line_color == Hierarchy) {
 		glBegin(GL_LINES);
 		int maxLvl = (double)*max_element(level.begin(), level.end());
+		if (maxLvl > hierarchyCap) { maxLvl = hierarchyCap; }; //hierarchy view fixed to have hierarchyCap as max level during showing
 		for (int j = 0; j < edgeList.size(); j++) {
 			if (showLevels[level[edgeList[j][0]]]) {
-				COLOR edge_color = GetColor(level[edgeList[j][0]], 0, maxLvl);
+				COLOR edge_color = GetColor((level[edgeList[j][0]] > hierarchyCap)? hierarchyCap :level[edgeList[j][0]], 0, maxLvl);
 				glColor4f((float)edge_color.r, (float)edge_color.g, (float)edge_color.b, 1.0);
 				glVertex3f(vertexList[edgeList[j][0]][0], vertexList[edgeList[j][0]][1], vertexList[edgeList[j][0]][2]);
 				glVertex3f(vertexList[edgeList[j][1]][0], vertexList[edgeList[j][1]][1], vertexList[edgeList[j][1]][2]);
@@ -746,21 +748,21 @@ void glArea::paintGL()
 	glRotatef(rotation[1], 0.0, 1.0, 0.0);
 	glRotatef(rotation[2], 0.0, 0.0, 1.0);
 	glTranslatef(-center[0], -center[1], -center[2]);
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(back_colorR, back_colorG, back_colorB, 1.0);
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
 	glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
 	glColor4f(mesh_colorR, mesh_colorG, mesh_colorB, alpha);
 	if (if_face) { glCallList(faceName); /*draw_faces();*/ }
-	glColor4f(0.0, 0.0, 0.0, 0.0);
+	/*glColor4f(0.0, 0.0, 0.0, 1.0);*/
 	glLineWidth(line_width);
 	if (if_line) { /*glCallList(lineName);*/ draw_lines();  }
-	if (if_drawWhorlAbove) {  draw_whorlsAbove(); }
-	if (if_drawWhorlBelow) {  draw_whorlsBelow(); }
-	if (if_drawNodeAbove) { draw_rootsAbove(); }
-	if (if_drawNodeBelow) { draw_rootsBelow(); }
-	if (if_drawPlane) { draw_plane(); }
+	if (if_drawWhorlAbove&&annotation_activated == 2) {  draw_whorlsAbove(); }
+	if (if_drawWhorlBelow&&annotation_activated == 2) {  draw_whorlsBelow(); }
+	if (if_drawNodeAbove&&annotation_activated == 2) { draw_rootsAbove(); }
+	if (if_drawNodeBelow&&annotation_activated == 2) { draw_rootsBelow(); }
+	if (if_drawPlane&&annotation_activated == 2) { draw_plane(); }
 	glFlush();
 	update();
 }

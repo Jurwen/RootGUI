@@ -24,6 +24,9 @@ public slots:
 	void meshColorRedChanged(int _s);
 	void meshColorGreenChanged(int _s);
 	void meshColorBlueChanged(int _s);
+	void backColorRedChanged(int _s);
+	void backColorGreenChanged(int _s);
+	void backColorBlueChanged(int _s);
 	void browseMeshClicked();
 	void browseMeshClicked_obj();
 	void browseSkelClicked();

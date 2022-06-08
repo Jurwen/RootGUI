@@ -1,11 +1,16 @@
 #include "mainPage.h"
 #include "glArea.h"
-
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <QDebug>
 mainPage::mainPage(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),ui(new Ui::mainPageClass)
 {	
 	area = new glArea(this);
+	qInfo() << "new area initialized";
     ui->setupUi(this);
+	qInfo() << "new area initialized";
 	ui->glLayout->addWidget(area, 1);
 	QObject::connect(ui->showSkel, SIGNAL(stateChanged(int)), this, SLOT(showSkelCheckBox(int)));
 	QObject::connect(ui->showMesh, SIGNAL(stateChanged(int)), this, SLOT(showMeshCheckBox(int)));
@@ -13,6 +18,9 @@ mainPage::mainPage(QWidget *parent)
 	QObject::connect(ui->meshColorRedSlider, SIGNAL(valueChanged(int)), this, SLOT(meshColorRedChanged(int)));
 	QObject::connect(ui->meshColorGreenSlider, SIGNAL(valueChanged(int)), this, SLOT(meshColorGreenChanged(int)));
 	QObject::connect(ui->meshColorBlueSlider, SIGNAL(valueChanged(int)), this, SLOT(meshColorBlueChanged(int)));
+	QObject::connect(ui->backColorRedSlider, SIGNAL(valueChanged(int)), this, SLOT(backColorRedChanged(int)));
+	QObject::connect(ui->backColorGreenSlider, SIGNAL(valueChanged(int)), this, SLOT(backColorGreenChanged(int)));
+	QObject::connect(ui->backColorBlueSlider, SIGNAL(valueChanged(int)), this, SLOT(backColorBlueChanged(int)));
 	QObject::connect(ui->skelWidthSlider, SIGNAL(valueChanged(int)), this, SLOT(skelWidthChanged(int)));
 	
 	QObject::connect(ui->jetMinBox, SIGNAL(valueChanged(double)), this, SLOT(jetMinSpinChanged(double)));
@@ -38,6 +46,11 @@ mainPage::mainPage(QWidget *parent)
 mainPage::~mainPage()
 {
 	delete ui;
+	
+	if (area) {
+		delete area;
+	}
+
 }
 
 void mainPage::showSkelCheckBox(int _s) {
@@ -57,22 +70,36 @@ void mainPage::alphaChanged(int _s) {
 
 void mainPage::meshColorRedChanged(int _s) {
 	ui->statusBar->showMessage("changing the mesh color");
-	area->mesh_colorR = (ui->meshColorRedSlider->maximum() - (float)_s) / (ui->meshColorRedSlider->maximum() - ui->meshColorRedSlider->minimum());
+	area->mesh_colorR = (/*ui->meshColorRedSlider->maximum() - */(float)_s) / (ui->meshColorRedSlider->maximum() - ui->meshColorRedSlider->minimum());
 }
 
 void mainPage::meshColorGreenChanged(int _s) {
 	ui->statusBar->showMessage("changing the mesh color");
-	area->mesh_colorG = (ui->meshColorGreenSlider->maximum() - (float)_s) / (ui->meshColorGreenSlider->maximum() - ui->meshColorGreenSlider->minimum());
+	area->mesh_colorG = ((float)_s) / (ui->meshColorGreenSlider->maximum() - ui->meshColorGreenSlider->minimum());
 }
 
 void mainPage::meshColorBlueChanged(int _s) {
 	ui->statusBar->showMessage("changing the mesh color");
-	area->mesh_colorB = (ui->meshColorBlueSlider->maximum() - (float)_s) / (ui->meshColorBlueSlider->maximum() - ui->meshColorBlueSlider->minimum());
+	area->mesh_colorB = ((float)_s) / (ui->meshColorBlueSlider->maximum() - ui->meshColorBlueSlider->minimum());
 }
 
+void mainPage::backColorRedChanged(int _s) {
+	ui->statusBar->showMessage("changing the background color");
+	area->back_colorR = ((float)_s) / (ui->backColorRedSlider->maximum() - ui->backColorRedSlider->minimum());
+}
+
+void mainPage::backColorGreenChanged(int _s) {
+	ui->statusBar->showMessage("changing the background color");
+	area->back_colorG = ((float)_s) / (ui->backColorGreenSlider->maximum() - ui->backColorGreenSlider->minimum());
+}
+
+void mainPage::backColorBlueChanged(int _s) {
+	ui->statusBar->showMessage("changing the background color");
+	area->back_colorB = ((float)_s) / (ui->backColorBlueSlider->maximum() - ui->backColorBlueSlider->minimum());
+}
 void mainPage::skelWidthChanged(int _s) {
 	ui->statusBar->showMessage("changing the line width");
-	area->line_width = 0.01 + 2 * (ui->skelWidthSlider->maximum() - (float)_s) / (ui->skelWidthSlider->maximum() - ui->skelWidthSlider->minimum());
+	area->line_width = 0.01 + 2 * ( (float)_s - ui->skelWidthSlider->minimum()) / (ui->skelWidthSlider->maximum() - ui->skelWidthSlider->minimum());
 }
 
 
@@ -84,7 +111,12 @@ void mainPage::jetMinSpinChanged(double _s)
 
 void mainPage::jetMaxSpinChanged(double _s)
 {
-	area->jet_max = _s;
+	if (area->line_color == Jet) {
+		area->jet_max = _s;
+	}
+	else {
+		area->hierarchyCap = _s;
+	}
 }
 
 void mainPage::browseMeshClicked()
@@ -93,7 +125,9 @@ void mainPage::browseMeshClicked()
 		NULL/*, QFileDialog::DontUseNativeDialog*/);
 	ui->meshFileLabel->setText(shape_file);
 	QByteArray shape_byteArray = shape_file.toLatin1();
-	if (shape_byteArray.data() != "") {
+	ifstream myFile;
+	myFile.open(shape_byteArray.data());
+	if (myFile.is_open()) {
 		area->mesh = ReadOffFile(shape_byteArray.data());
 		area->faceDisplayList += 2;
 		area->draw_faces();
@@ -111,7 +145,9 @@ void mainPage::browseMeshClicked_obj()
 		NULL/*, QFileDialog::DontUseNativeDialog*/);
 	ui->meshFileLabel_obj->setText(shape_file);
 	QByteArray shape_byteArray = shape_file.toLatin1();
-	if (shape_byteArray.data() != "") {
+	ifstream myFile;
+	myFile.open(shape_byteArray.data());
+	if (myFile.is_open()) {
 		area->mesh = ReaderOBj(shape_byteArray.data());
 		area->faceDisplayList += 2;
 		area->draw_faces();
@@ -135,11 +171,13 @@ void mainPage::browseSkelClicked()
 		area->if_drawNodeAbove = false;
 		area->if_drawNodeBelow = false;
 		area->if_drawPlane = false;
+		area->adjustView();
 		ui->whorlAbove->setChecked(false);
 		ui->whorlBelow->setChecked(false);
 		ui->nodalRootAbove->setChecked(false);
 		ui->nodalRootBelow->setChecked(false);
 		ui->showPlane->setChecked(false);
+		area->annotation_activated = 1;
 		cout << "Successfully initiated ply data... " << endl;
 	}
 	area->showLevels.clear();
@@ -157,7 +195,7 @@ void mainPage::browseAnnotationClicked()
 		NULL/*, QFileDialog::DontUseNativeDialog*/);
 	ui->annotationFileLabel->setText(annotation_file);
 	QByteArray annotation_byteArray = annotation_file.toLatin1();
-	if (readAnnotation(area->whorls, area->nodalRoots, annotation_byteArray.data(), area->cent, area->n) == 1) {
+	if (readAnnotation(area->whorls, area->nodalRoots, annotation_byteArray.data(), area->cent, area->n) == 1 && area->annotation_activated == 1) {
 		area->if_drawWhorlAbove = false;
 		area->if_drawWhorlBelow = false;
 		area->if_drawNodeAbove = false;
@@ -168,9 +206,11 @@ void mainPage::browseAnnotationClicked()
 		ui->nodalRootAbove->setChecked(false);
 		ui->nodalRootBelow->setChecked(false);
 		ui->showPlane->setChecked(false);
+		area->annotation_activated = 2;
 		cout << "Successfully initiated annotation data... " << endl;
 	}
 	else {
+		area->annotation_activated = 0;
 		ui->statusBar->showMessage("no annotation file is loaded");
 	}
 }
@@ -283,11 +323,17 @@ void mainPage::skeletonColorComboBox(int _s)
 	}
 	else if (_s == 1){
 		area->line_color = Hierarchy;
+		ui->jetMaxBox->setMaximum(5);
+		ui->jetMaxBox->setValue(area->hierarchyCap);
+		ui->jetMaxBox->setMinimum(0);
+		ui->jetMaxBox->setSingleStep(1);
 		ui->statusBar->showMessage("changing the skeleton color according to hierarchy");
 	}
 	else {
 		area->line_color = Jet;
 		ui->statusBar->showMessage("changing the skeleton color according to radius");
-
+		ui->jetMaxBox->setMaximum((double)*max_element(area->radius.begin(), area->radius.end()));
+		ui->jetMaxBox->setValue((double)*max_element(area->radius.begin(), area->radius.end()));
+		ui->jetMaxBox->setSingleStep(.01);
 	}
 }

@@ -49,7 +49,7 @@ class glArea :
 	Q_OBJECT
 
 public: 
-	glArea(QWidget *parent = 0);
+	glArea(QWidget *parent = nullptr);
 	~glArea();
 	bool if_face, if_line, if_drawWhorlAbove, if_drawWhorlBelow, if_drawNodeAbove, if_drawNodeBelow, if_drawPlane;
 	float alpha;
@@ -60,6 +60,9 @@ public:
 	double mesh_colorR;
 	double mesh_colorG;
 	double mesh_colorB;
+	double back_colorR;
+	double back_colorG;
+	double back_colorB;
 	myMesh *mesh;
 	Whorls whorls;
 	vector<vector<int>> nodalRoots;
@@ -74,6 +77,8 @@ public:
 	//GLuint lineDisplayList = 1;
 	vector<float> cent = {};
 	vector<vector<float>> n = { {},{},{} }; //PCA axes
+	int annotation_activated = 0;
+	int hierarchyCap = 5;
 
 protected:
 	void initializeGL();
@@ -81,7 +86,7 @@ protected:
 	void paintGL();
 
 	void mousePressEvent(QMouseEvent *event);
-	void mouseMoveEvent(QMouseEvent *event);    //µã»÷²¢ÒÆ¶¯
+	void mouseMoveEvent(QMouseEvent *event);    
 	void mouseReleaseEvent(QMouseEvent *event);
 	void wheelEvent(QWheelEvent * event);
 	
