@@ -68,6 +68,9 @@ public:
 	vector<vector<int>> nodalRoots;
 	vector<vector<double long>> vertexList;
 	vector<vector<int>> edgeList;
+	
+	vector<vector<int>> adjVertex;
+
 	vector<double long> radius;
 	vector<int> level;
 	void adjustView();
@@ -96,6 +99,7 @@ protected:
 	void draw_rootsAbove();
 	void draw_rootsBelow();
 	void draw_plane();
+
 private:
 	int skeleton_size;
 	bool isRotate;
@@ -121,7 +125,8 @@ myMesh * ReaderOBj(string fname2);
 myMesh * ReadOffFile(const char *filename);
 vector<string> split(const string &str, const string &pattern);
 void get_normal(Face& face);
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius);
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj);
 int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n);
 //jetcolor:
 COLOR GetColor(double v, double vmin, double vmax);
+void propagate(vector<vector<int>>& adj, vector<int> &level, int &hierarchyCap, int v, int pv, int diff);

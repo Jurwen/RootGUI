@@ -4,6 +4,9 @@
 #include <fstream>
 #include <sstream>
 #include <QDebug>
+
+ofstream debugg("output.txt");
+
 mainPage::mainPage(QWidget *parent)
     : QMainWindow(parent),ui(new Ui::mainPageClass)
 {	
@@ -97,24 +100,32 @@ void mainPage::backColorBlueChanged(int _s) {
 	ui->statusBar->showMessage("changing the background color");
 	area->back_colorB = ((float)_s) / (ui->backColorBlueSlider->maximum() - ui->backColorBlueSlider->minimum());
 }
+
+// changed from 0.01 + 2 * ... to 0.05 + 2.5 * ... , made lines thicker
+// and minimum value larger
 void mainPage::skelWidthChanged(int _s) {
 	ui->statusBar->showMessage("changing the line width");
-	area->line_width = 0.01 + 2 * ( (float)_s - ui->skelWidthSlider->minimum()) / (ui->skelWidthSlider->maximum() - ui->skelWidthSlider->minimum());
+	area->line_width = 0.05 + 2.5 * ( (float)_s - ui->skelWidthSlider->minimum()) / (ui->skelWidthSlider->maximum() - ui->skelWidthSlider->minimum());
 }
 
 
 
 void mainPage::jetMinSpinChanged(double _s)
 {
+	debugg << "jetMinSpinChanged" << endl;
 	area->jet_min = _s;
 }
 
 void mainPage::jetMaxSpinChanged(double _s)
 {
+	ofstream fout("jetMaxSpin.txt");
 	if (area->line_color == Jet) {
 		area->jet_max = _s;
 	}
 	else {
+		debugg << "jetMaxSpinChanged Hierarchy " << _s << endl;
+		fout << "changing max box for hierarchy..." << endl;
+		fout << _s << endl;
 		area->hierarchyCap = _s;
 	}
 }
@@ -161,11 +172,13 @@ void mainPage::browseMeshClicked_obj()
 
 void mainPage::browseSkelClicked()
 {
+	debugg << "broseSkelClicked()" << endl;
+	ofstream fout("browseSkelClicked.txt");
 	QString skel_file = QFileDialog::getOpenFileName(this, "Select .ply file", "", "*.ply",
 		NULL/*, QFileDialog::DontUseNativeDialog*/);
 	ui->skelFileLabel->setText(skel_file);
 	QByteArray skel_byteArray = skel_file.toLatin1();
-	if (getSkeleton(area->vertexList, area->edgeList, skel_byteArray.data(), area->level, area->radius) == 1) {
+	if (getSkeleton(area->vertexList, area->edgeList, skel_byteArray.data(), area->level, area->radius, area->adjVertex) == 1) {
 		area->if_drawWhorlAbove = false;
 		area->if_drawWhorlBelow = false;
 		area->if_drawNodeAbove = false;
@@ -178,15 +191,25 @@ void mainPage::browseSkelClicked()
 		ui->nodalRootBelow->setChecked(false);
 		ui->showPlane->setChecked(false);
 		area->annotation_activated = 1;
-		cout << "Successfully initiated ply data... " << endl;
+		fout << "Successfully initiated ply data... " << endl;
 	}
 	area->showLevels.clear();
-	for (int i = 0; i < *max_element(area->level.begin(), area->level.end()); i++) {
+	for (int i = 0; i <= *max_element(area->level.begin(), area->level.end()); i++) {
 		area->showLevels.push_back(1);
 	}
+	fout << "Level size: " << area->level.size() << endl;
+
+	debugg << "Setting values for jetMax and Min" << endl;
+	fout << "Successfully set levels..." << endl;
+	debugg << area->hierarchyCap << endl;
+
 	area->if_line = true;
 	ui->jetMaxBox->setValue((double)*max_element(area->radius.begin(), area->radius.end()));
+	debugg << area->hierarchyCap << endl;
+	
 	ui->jetMinBox->setValue((double)*min_element(area->radius.begin(), area->radius.end()));
+	debugg << "Success with jetMaxBox value setting..." << endl;
+	debugg << area->hierarchyCap << endl;
 }
 
 void mainPage::browseAnnotationClicked()
@@ -316,21 +339,35 @@ void mainPage::showPlaneCheckBox(int _s) {
 
 void mainPage::skeletonColorComboBox(int _s)
 {
-	
+	debugg << "skeletonColorComboBox" << endl;
+	ofstream fout("skeletonColorComboBox.txt");
 	if (_s == 0) {
 		area->line_color = Normal;
 		ui->statusBar->showMessage("changing the skeleton color to normal");
 	}
 	else if (_s == 1){
+		fout << "Setting by hierarchy" << endl;
+		debugg << area->hierarchyCap << endl;
 		area->line_color = Hierarchy;
 		ui->jetMaxBox->setMaximum(5);
 		ui->jetMaxBox->setValue(area->hierarchyCap);
 		ui->jetMaxBox->setMinimum(0);
 		ui->jetMaxBox->setSingleStep(1);
 		ui->statusBar->showMessage("changing the skeleton color according to hierarchy");
+
+		//
+		// FOR TESTING
+		// REROUTING VERTEX 5 TO VERTEX 2
+		// WITH PROPAGATION
+		//
+
+		swap(area->level[5], area->level[2]);
+		//propagate(area->adjVertex, area->level, area->hierarchyCap, 2, -1, area->level[2] - area->level[5]);
+		//propagate(area->adjVertex, area->level, area->hierarchyCap, 5, -1, area->level[5] - area->level[2]);
 	}
 	else {
 		area->line_color = Jet;
+		fout << "Set by Jet" << endl;
 		ui->statusBar->showMessage("changing the skeleton color according to radius");
 		ui->jetMaxBox->setMaximum((double)*max_element(area->radius.begin(), area->radius.end()));
 		ui->jetMaxBox->setValue((double)*max_element(area->radius.begin(), area->radius.end()));

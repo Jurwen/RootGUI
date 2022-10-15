@@ -1,0 +1,22 @@
+ply
+format ascii 1.0
+element vertex 4
+property float32 bt2
+property int32 level
+property float32 radius
+property float32 x
+property float32 y
+property float32 z
+element edge 3
+property int32 vertex1
+property int32 vertex2
+element face 0
+property list uint8 int32 vertex_indices
+end_header
+4 4 0.866025 250 105.063 355.074 
+3 3 0.866025 244.003 111.246 392.75 
+3 3 0.866025 228.056 105.992 285.943 
+3 3 0.866025 243.683 109.996 391.321 
+1 2
+2 3
+3 4

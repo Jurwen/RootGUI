@@ -1,4 +1,13 @@
-﻿  Reading Qt configuration (D:/Qt/Qt5.11.0/5.11.0/msvc2017_64/bin/qmake)
+﻿  Reading Qt configuration (C:/Qt/Qt5.11.0/5.11.0/msvc2017_64/bin/qmake)
+  uic mainPage.ui
+  rcc mainPage.qrc
+  moc mainPage.h
+  moc glArea.h
+   RCC: Warning: No resources in 'C:\Users\xiaog\Documents\GitHub\RootGUI\root_mesh_viewer\mainPage.qrc'.
   glArea.cpp
   mainPage.cpp
-  root_mesh_viewer.vcxproj -> C:\Users\yiwen\Downloads\Root-GUI-master\Root-GUI-master\x64\Release\root_mesh_viewer.exe
+  main.cpp
+  qrc_mainPage.cpp
+  moc_mainPage.cpp
+  moc_glArea.cpp
+  root_mesh_viewer.vcxproj -> C:\Users\xiaog\Documents\GitHub\RootGUI\x64\Release\root_mesh_viewer.exe

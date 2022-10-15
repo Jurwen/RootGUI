@@ -18,8 +18,8 @@ static GLfloat light1_position[] = { -3.0, -3.0, -3.0, 0.0 };
 
 
 
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius) {
-	
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj) {
+	ofstream fout("getSkeleton.txt");
 	
 	ifstream myFile;
 	myFile.open(fileName);
@@ -28,6 +28,8 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 		edgeData.clear();
 		radius.clear();
 		level.clear();
+		adj.clear();
+
 		string word, line;
 		double long verCoordinate;
 		int edgeIndices;
@@ -80,21 +82,30 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 				}
 				vertexData.push_back(vertex);
 			}
+
+			// ###
+			adj.resize(vNum + 3);
 			if (lineNum >= 16 + vNum && lineNum < 16 + vNum + eNum) {
 				vector<int> edge;
 				istringstream iss(line);
 				while (iss >> edgeIndices) {
 					edge.push_back(edgeIndices);
 				}
+
+				// assume edges connect 2 vertices
+				adj[edge[0]].push_back(edge[1]);
+				adj[edge[1]].push_back(edge[0]);
+
 				edgeData.push_back(edge);
 			}
 		}
+		fout << "Success" << endl;
 		//From here, all the data from the file is been put into fileData. 
 		myFile.close();
 		return 1;
 	}
 	else { // when the file is not opened after calling the open function, display an error msg.
-		cout << "Error/ Cannot open the file" << endl;
+		fout << "Error/ Cannot open the file" << endl;
 		return 0;
 	}
 }
@@ -630,15 +641,21 @@ void glArea::draw_faces() {
 
 
 
+// CHECK HERE FOR JUNCTION POINT COLORING ERRORS
 void glArea::draw_lines() {
+	ofstream fout("draw_lines.txt");
+	fout << "Drawing lines..." << endl;
 	if (line_color == Normal) {
+		fout << "Drawing Normal lines..." << endl;
 		glColor4f(0.0, 0.0, 0.0, 1.0);
 		glBegin(GL_LINES);
 		for (int j = 0; j < edgeList.size(); j++) {
+			fout << edgeList[j][0] << " " << edgeList[j][1] << endl;
 			glVertex3f(vertexList[edgeList[j][0]][0], vertexList[edgeList[j][0]][1], vertexList[edgeList[j][0]][2]);
 			glVertex3f(vertexList[edgeList[j][1]][0], vertexList[edgeList[j][1]][1], vertexList[edgeList[j][1]][2]);
 		}
 		glEnd();
+		fout << "Finished drawing Normal lines..." << endl;
 	}
 	else if (line_color == Jet) {
 		glBegin(GL_LINES);
@@ -651,12 +668,24 @@ void glArea::draw_lines() {
 		glEnd();
 	}
 	else if (line_color == Hierarchy) {
+		fout << "Drawing hierarchal lines..." << endl;
 		glBegin(GL_LINES);
 		int maxLvl = (double)*max_element(level.begin(), level.end());
+		
+		fout << hierarchyCap << endl;
+		fout << maxLvl << endl;
 		if (maxLvl > hierarchyCap) { maxLvl = hierarchyCap; }; //hierarchy view fixed to have hierarchyCap as max level during showing
+		
 		for (int j = 0; j < edgeList.size(); j++) {
-			if (showLevels[level[edgeList[j][0]]]) {
-				COLOR edge_color = GetColor((level[edgeList[j][0]] > hierarchyCap)? hierarchyCap :level[edgeList[j][0]], 0, maxLvl);
+			// changed edgelist[j][0] whenever it was used to get color
+			// to the max of the two
+
+			fout << edgeList[j][0] << " " << edgeList[j][1] << endl;
+			if (showLevels[max(level[edgeList[j][0]], level[edgeList[j][1]])]) {
+				COLOR edge_color = GetColor((max(level[edgeList[j][0]], level[edgeList[j][1]]) > hierarchyCap)? hierarchyCap : max(level[edgeList[j][0]], level[edgeList[j][1]]), 0, maxLvl);
+				
+				fout << edgeList[j][0] << " " << edgeList[j][1] << endl;
+
 				glColor4f((float)edge_color.r, (float)edge_color.g, (float)edge_color.b, 1.0);
 				glVertex3f(vertexList[edgeList[j][0]][0], vertexList[edgeList[j][0]][1], vertexList[edgeList[j][0]][2]);
 				glVertex3f(vertexList[edgeList[j][1]][0], vertexList[edgeList[j][1]][1], vertexList[edgeList[j][1]][2]);
@@ -664,7 +693,7 @@ void glArea::draw_lines() {
 		}
 		glEnd();
 	}
-
+	fout << "Successfully drew lines" << endl;
 }
 
 void glArea::adjustView()
@@ -812,7 +841,6 @@ void glArea::wheelEvent(QWheelEvent * event)
 	}
 }
 
-
 COLOR GetColor(double v, double vmin, double vmax) //code from stack overflow
 {
 	COLOR c = { 1.0,1.0,1.0 }; // white
@@ -842,4 +870,17 @@ COLOR GetColor(double v, double vmin, double vmax) //code from stack overflow
 	}
 
 	return(c);
+}
+
+void propagate(vector<vector<int>>& adj, vector<int>& level, int& hierarchyCap, int vertex, int pv, int diff)
+{
+	for (const auto &nx : adj[vertex])
+	{
+		if (level[nx] > level[vertex])
+		{
+			level[nx] += diff;
+			hierarchyCap = max(level[nx], hierarchyCap);
+			propagate(adj, level, hierarchyCap, nx, vertex, diff);
+		}
+	}
 }
