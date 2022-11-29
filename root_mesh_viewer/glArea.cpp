@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include<string>
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,8 +18,8 @@ static GLfloat light1_position[] = { -3.0, -3.0, -3.0, 0.0 };
 
 
 
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj) {
-	ofstream fout("getSkeleton.txt");
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, vector<int> &junctions) {
+	// ofstream fout("getSkeleton.txt");
 	
 	ifstream myFile;
 	myFile.open(fileName);
@@ -99,13 +99,18 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 				edgeData.push_back(edge);
 			}
 		}
-		fout << "Success" << endl;
+
+		for (int i = 0; i < adj.size(); i++)
+			if (adj[i].size() > 2)
+				junctions.push_back(i);
+
+		// fout << "Success" << endl;
 		//From here, all the data from the file is been put into fileData. 
 		myFile.close();
 		return 1;
 	}
 	else { // when the file is not opened after calling the open function, display an error msg.
-		fout << "Error/ Cannot open the file" << endl;
+		// fout << "Error/ Cannot open the file" << endl;
 		return 0;
 	}
 }
@@ -643,19 +648,19 @@ void glArea::draw_faces() {
 
 // CHECK HERE FOR JUNCTION POINT COLORING ERRORS
 void glArea::draw_lines() {
-	ofstream fout("draw_lines.txt");
-	fout << "Drawing lines..." << endl;
+	// ofstream fout("draw_lines.txt");
+	// fout << "Drawing lines..." << endl;
 	if (line_color == Normal) {
-		fout << "Drawing Normal lines..." << endl;
+		// fout << "Drawing Normal lines..." << endl;
 		glColor4f(0.0, 0.0, 0.0, 1.0);
 		glBegin(GL_LINES);
 		for (int j = 0; j < edgeList.size(); j++) {
-			fout << edgeList[j][0] << " " << edgeList[j][1] << endl;
+			// fout << edgeList[j][0] << " " << edgeList[j][1] << endl;
 			glVertex3f(vertexList[edgeList[j][0]][0], vertexList[edgeList[j][0]][1], vertexList[edgeList[j][0]][2]);
 			glVertex3f(vertexList[edgeList[j][1]][0], vertexList[edgeList[j][1]][1], vertexList[edgeList[j][1]][2]);
 		}
 		glEnd();
-		fout << "Finished drawing Normal lines..." << endl;
+		// fout << "Finished drawing Normal lines..." << endl;
 	}
 	else if (line_color == Jet) {
 		glBegin(GL_LINES);
@@ -668,23 +673,24 @@ void glArea::draw_lines() {
 		glEnd();
 	}
 	else if (line_color == Hierarchy) {
-		fout << "Drawing hierarchal lines..." << endl;
+		// fout << "Drawing hierarchal lines..." << endl;
 		glBegin(GL_LINES);
 		int maxLvl = (double)*max_element(level.begin(), level.end());
 		
-		fout << hierarchyCap << endl;
-		fout << maxLvl << endl;
+		// fout << hierarchyCap << endl;
+		// fout << maxLvl << endl;
 		if (maxLvl > hierarchyCap) { maxLvl = hierarchyCap; }; //hierarchy view fixed to have hierarchyCap as max level during showing
 		
 		for (int j = 0; j < edgeList.size(); j++) {
 			// changed edgelist[j][0] whenever it was used to get color
 			// to the max of the two
 
-			fout << edgeList[j][0] << " " << edgeList[j][1] << endl;
+			// fout << edgeList[j][0] << " " << edgeList[j][1] << endl;
 			if (showLevels[max(level[edgeList[j][0]], level[edgeList[j][1]])]) {
 				COLOR edge_color = GetColor((max(level[edgeList[j][0]], level[edgeList[j][1]]) > hierarchyCap)? hierarchyCap : max(level[edgeList[j][0]], level[edgeList[j][1]]), 0, maxLvl);
 				
-				fout << edgeList[j][0] << " " << edgeList[j][1] << endl;
+				// fout << edgeList[j][0] << " " << edgeList[j][1] << " ";
+				// fout << edge_color.r << " " << edge_color.g << " " << edge_color.b << endl;
 
 				glColor4f((float)edge_color.r, (float)edge_color.g, (float)edge_color.b, 1.0);
 				glVertex3f(vertexList[edgeList[j][0]][0], vertexList[edgeList[j][0]][1], vertexList[edgeList[j][0]][2]);
@@ -693,7 +699,7 @@ void glArea::draw_lines() {
 		}
 		glEnd();
 	}
-	fout << "Successfully drew lines" << endl;
+	// fout << "Successfully drew lines" << endl;
 }
 
 void glArea::adjustView()
@@ -801,6 +807,7 @@ void glArea::mousePressEvent(QMouseEvent * event)
 	if (event->buttons() == Qt::LeftButton) {
 		isRotate = true;
 		isTranslate = false;
+		
 	}
 	else if (event->buttons() == Qt::RightButton) {
 		isTranslate = true;
@@ -872,15 +879,24 @@ COLOR GetColor(double v, double vmin, double vmax) //code from stack overflow
 	return(c);
 }
 
+
+// ofstream prop("propagate.txt");
 void propagate(vector<vector<int>>& adj, vector<int>& level, int& hierarchyCap, int vertex, int pv, int diff)
 {
+	// prop <<  "at " <<  vertex << " w/ level " << level[vertex] << "\n";
+	/*for (int i = 0; i < level.size(); i++)
+		prop << level[i] << " ";
+	prop << "\n";
+	*/
 	for (const auto &nx : adj[vertex])
 	{
-		if (level[nx] > level[vertex])
+		if (nx != pv)
 		{
+			// prop << nx << " " << level[nx] << " " << diff << "\n";
 			level[nx] += diff;
-			hierarchyCap = max(level[nx], hierarchyCap);
+			//hierarchyCap = max(level[nx], hierarchyCap);
 			propagate(adj, level, hierarchyCap, nx, vertex, diff);
 		}
 	}
+	// prop << "RETURNED\n";
 }

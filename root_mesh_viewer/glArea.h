@@ -63,6 +63,11 @@ public:
 	double back_colorR;
 	double back_colorG;
 	double back_colorB;
+	bool editOn = 0;
+	bool editval = 0;
+
+	int par;
+
 	myMesh *mesh;
 	Whorls whorls;
 	vector<vector<int>> nodalRoots;
@@ -70,6 +75,7 @@ public:
 	vector<vector<int>> edgeList;
 	
 	vector<vector<int>> adjVertex;
+	vector<int> junctions;
 
 	vector<double long> radius;
 	vector<int> level;
@@ -125,7 +131,7 @@ myMesh * ReaderOBj(string fname2);
 myMesh * ReadOffFile(const char *filename);
 vector<string> split(const string &str, const string &pattern);
 void get_normal(Face& face);
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj);
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, vector<int>& junctions);
 int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n);
 //jetcolor:
 COLOR GetColor(double v, double vmin, double vmax);
