@@ -15,10 +15,22 @@ GLfloat LightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 static GLfloat light0_position[] = { 4.0, 4.0, 4.0, 0.0 };
 static GLfloat light1_position[] = { -3.0, -3.0, -3.0, 0.0 };
 
+int ID = 1;
+
+void dfsid(int at, int par, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs)
+{
+	IDs[at] = ID;
+	for(const auto &nx : adj[at])
+		if (nx != par)
+		{
+			if (junctions.count(nx)) ID++;
+			dfsid(nx, at, adj, junctions, IDs);
+		}
+	return;
+}
 
 
-
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, vector<int> &junctions) {
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs) {
 	// ofstream fout("getSkeleton.txt");
 	
 	ifstream myFile;
@@ -82,7 +94,7 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 				}
 				vertexData.push_back(vertex);
 			}
-
+			
 			// ###
 			adj.resize(vNum + 3);
 			if (lineNum >= 16 + vNum && lineNum < 16 + vNum + eNum) {
@@ -102,7 +114,11 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 
 		for (int i = 0; i < adj.size(); i++)
 			if (adj[i].size() > 2)
-				junctions.push_back(i);
+				junctions.insert(i);
+
+		ID = 1;
+		IDs.resize(adj.size());
+		dfsid(*junctions.begin(), -1, adj, junctions, IDs);
 
 		// fout << "Success" << endl;
 		//From here, all the data from the file is been put into fileData. 
@@ -807,7 +823,6 @@ void glArea::mousePressEvent(QMouseEvent * event)
 	if (event->buttons() == Qt::LeftButton) {
 		isRotate = true;
 		isTranslate = false;
-		
 	}
 	else if (event->buttons() == Qt::RightButton) {
 		isTranslate = true;
@@ -878,7 +893,6 @@ COLOR GetColor(double v, double vmin, double vmax) //code from stack overflow
 
 	return(c);
 }
-
 
 // ofstream prop("propagate.txt");
 void propagate(vector<vector<int>>& adj, vector<int>& level, int& hierarchyCap, int vertex, int pv, int diff)

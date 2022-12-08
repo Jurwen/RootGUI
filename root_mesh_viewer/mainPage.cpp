@@ -178,7 +178,7 @@ void mainPage::browseSkelClicked()
 		NULL/*, QFileDialog::DontUseNativeDialog*/);
 	ui->skelFileLabel->setText(skel_file);
 	QByteArray skel_byteArray = skel_file.toLatin1();
-	if (getSkeleton(area->vertexList, area->edgeList, skel_byteArray.data(), area->level, area->radius, area->adjVertex, area->junctions) == 1) {
+	if (getSkeleton(area->vertexList, area->edgeList, skel_byteArray.data(), area->level, area->radius, area->adjVertex, area->junctions, area->IDs) == 1) {
 		area->if_drawWhorlAbove = false;
 		area->if_drawWhorlBelow = false;
 		area->if_drawNodeAbove = false;
