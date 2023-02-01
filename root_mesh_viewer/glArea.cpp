@@ -946,8 +946,8 @@ COLOR GetColor(double v, double vmin, double vmax) //code from stack overflow
 	return(c);
 }
 
-// ofstream prop("propagate.txt");
-void propagate(vector<vector<int>>& adj, vector<int>& level, int& hierarchyCap, int vertex, int pv, int diff)
+//ofstream prop("propagate.txt");
+void propagate(vector<vector<int>>& adj, vector<int>& level, int& hierarchyCap, int vertex, int pv, int paridx, int diff)
 {
 	// prop <<  "at " <<  vertex << " w/ level " << level[vertex] << "\n";
 	/*for (int i = 0; i < level.size(); i++)
@@ -956,12 +956,12 @@ void propagate(vector<vector<int>>& adj, vector<int>& level, int& hierarchyCap, 
 	*/
 	for (const auto &nx : adj[vertex])
 	{
-		if (nx != pv)
+		if (nx != pv && nx != paridx)
 		{
 			// prop << nx << " " << level[nx] << " " << diff << "\n";
 			level[nx] += diff;
 			//hierarchyCap = max(level[nx], hierarchyCap);
-			propagate(adj, level, hierarchyCap, nx, vertex, diff);
+			propagate(adj, level, hierarchyCap, nx, vertex, paridx, diff);
 		}
 	}
 	// prop << "RETURNED\n";

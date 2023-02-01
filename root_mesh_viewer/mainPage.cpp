@@ -399,9 +399,11 @@ void mainPage::swapLastT() {
 		area->ind.pop_back();
 		int par = area->ind.back();
 		area->ind.pop_back();
+		//ui->statusBar->showMessage("reprop " + QString(fchi) + " " + QString(schi));
 
 		swap(area->level[fchi], area->level[schi]);
-		propagate(area->adjVertex, area->level, area->hierarchyCap, schi, par, area->level[schi] - area->level[fchi]);
-		propagate(area->adjVertex, area->level, area->hierarchyCap, fchi, par, area->level[fchi] - area->level[schi]);
+		propagate(area->adjVertex, area->level, area->hierarchyCap, schi, -1, par, area->level[schi] - area->level[fchi]);
+		propagate(area->adjVertex, area->level, area->hierarchyCap, fchi, -1, par, area->level[fchi] - area->level[schi]);
 	}
+	else ui->statusBar->showMessage("not enough indices");
 }

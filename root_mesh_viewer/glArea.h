@@ -143,5 +143,5 @@ int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileN
 //jetcolor:
 COLOR GetColor(double v, double vmin, double vmax);
 
-void propagate(vector<vector<int>>& adj, vector<int> &level, int &hierarchyCap, int v, int pv, int diff);
+void propagate(vector<vector<int>>& adj, vector<int> &level, int &hierarchyCap, int v, int pv, int paridx, int diff);
 void dfsid(int at, int par, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs);
