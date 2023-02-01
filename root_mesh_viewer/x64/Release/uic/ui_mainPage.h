@@ -217,7 +217,7 @@ public:
         label_8->setGeometry(QRect(20, 220, 111, 31));
         editOn = new QCheckBox(skeletonTab);
         editOn->setObjectName(QStringLiteral("editOn"));
-        editOn->setGeometry(QRect(10, 560, 74, 20));
+        editOn->setGeometry(QRect(10, 560, 91, 20));
         inputText = new QTextEdit(skeletonTab);
         inputText->setObjectName(QStringLiteral("inputText"));
         inputText->setGeometry(QRect(10, 580, 131, 31));
@@ -359,7 +359,7 @@ public:
 
         label_7->setText(QApplication::translate("mainPageClass", "Skeleton Color", nullptr));
         label_8->setText(QApplication::translate("mainPageClass", "Skeleton Color Range", nullptr));
-        editOn->setText(QApplication::translate("mainPageClass", "EditOn", nullptr));
+        editOn->setText(QApplication::translate("mainPageClass", "Edit Hierarchy", nullptr));
         inputValue->setText(QApplication::translate("mainPageClass", "Go", nullptr));
         swapLast->setText(QApplication::translate("mainPageClass", "Swap", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(skeletonTab), QApplication::translate("mainPageClass", "Skeleton", nullptr));
