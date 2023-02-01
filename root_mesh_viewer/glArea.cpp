@@ -725,18 +725,18 @@ ofstream fout("debug.txt");
 // simply believe
 void glArea::label_junction(int idx, float h) {
 	float scale = h / (119.05f + 33.33f);
-	float xo = vertexList[idx][2];
-	float yo = vertexList[idx][3];
-	float zo = vertexList[idx][4];
+	float xo = vertexList[idx][2]; // x coord
+	float yo = vertexList[idx][3]; // y coord
+	float zo = vertexList[idx][4]; // z coord
 	fout << "set scale xo yo zo\n";
 
 	glPushMatrix();
 	fout << "Pushed matrix\n";
 	glTranslatef(xo, yo, zo);
-	glScalef(scale, scale, scale);
+	glScalef(1 / 152.38, 1 / 152.38, 1 / 152.38);
 	fout << "translated and scaled\n";
-	auto curr = reinterpret_cast<const unsigned char*>(to_string(idx).c_str());
-	fout << "Cast\n";
+	//auto curr = reinterpret_cast<const unsigned char*>(to_string(idx).c_str());
+	//fout << "Cast\n";
 
 	// why crash
 	glutStrokeCharacter(GLUT_STROKE_ROMAN, 'a');

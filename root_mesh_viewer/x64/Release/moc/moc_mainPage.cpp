@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_mainPage_t {
-    QByteArrayData data[32];
-    char stringdata0[582];
+    QByteArrayData data[33];
+    char stringdata0[592];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -62,7 +62,8 @@ QT_MOC_LITERAL(27, 491, 22), // "nodalRootAboveCheckBox"
 QT_MOC_LITERAL(28, 514, 17), // "showPlaneCheckBox"
 QT_MOC_LITERAL(29, 532, 21), // "skeletonColorComboBox"
 QT_MOC_LITERAL(30, 554, 15), // "editStateChange"
-QT_MOC_LITERAL(31, 570, 11) // "addCurValue"
+QT_MOC_LITERAL(31, 570, 11), // "addCurValue"
+QT_MOC_LITERAL(32, 582, 9) // "swapLastT"
 
     },
     "mainPage\0showSkelCheckBox\0\0_s\0"
@@ -79,7 +80,7 @@ QT_MOC_LITERAL(31, 570, 11) // "addCurValue"
     "whorlBelowCheckBox\0whorlAboveCheckBox\0"
     "nodalRootBelowCheckBox\0nodalRootAboveCheckBox\0"
     "showPlaneCheckBox\0skeletonColorComboBox\0"
-    "editStateChange\0addCurValue"
+    "editStateChange\0addCurValue\0swapLastT"
 };
 #undef QT_MOC_LITERAL
 
@@ -89,7 +90,7 @@ static const uint qt_meta_data_mainPage[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      29,   14, // methods
+      30,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -97,35 +98,36 @@ static const uint qt_meta_data_mainPage[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,  159,    2, 0x0a /* Public */,
-       4,    1,  162,    2, 0x0a /* Public */,
-       5,    1,  165,    2, 0x0a /* Public */,
-       6,    1,  168,    2, 0x0a /* Public */,
-       7,    1,  171,    2, 0x0a /* Public */,
-       8,    1,  174,    2, 0x0a /* Public */,
-       9,    1,  177,    2, 0x0a /* Public */,
-      10,    1,  180,    2, 0x0a /* Public */,
-      11,    1,  183,    2, 0x0a /* Public */,
-      12,    1,  186,    2, 0x0a /* Public */,
-      13,    1,  189,    2, 0x0a /* Public */,
-      14,    1,  192,    2, 0x0a /* Public */,
-      15,    0,  195,    2, 0x0a /* Public */,
-      16,    0,  196,    2, 0x0a /* Public */,
-      17,    0,  197,    2, 0x0a /* Public */,
-      18,    0,  198,    2, 0x0a /* Public */,
-      19,    1,  199,    2, 0x0a /* Public */,
-      20,    1,  202,    2, 0x0a /* Public */,
-      21,    1,  205,    2, 0x0a /* Public */,
-      22,    1,  208,    2, 0x0a /* Public */,
-      23,    1,  211,    2, 0x0a /* Public */,
-      24,    1,  214,    2, 0x0a /* Public */,
-      25,    1,  217,    2, 0x0a /* Public */,
-      26,    1,  220,    2, 0x0a /* Public */,
-      27,    1,  223,    2, 0x0a /* Public */,
-      28,    1,  226,    2, 0x0a /* Public */,
-      29,    1,  229,    2, 0x0a /* Public */,
-      30,    1,  232,    2, 0x0a /* Public */,
-      31,    0,  235,    2, 0x0a /* Public */,
+       1,    1,  164,    2, 0x0a /* Public */,
+       4,    1,  167,    2, 0x0a /* Public */,
+       5,    1,  170,    2, 0x0a /* Public */,
+       6,    1,  173,    2, 0x0a /* Public */,
+       7,    1,  176,    2, 0x0a /* Public */,
+       8,    1,  179,    2, 0x0a /* Public */,
+       9,    1,  182,    2, 0x0a /* Public */,
+      10,    1,  185,    2, 0x0a /* Public */,
+      11,    1,  188,    2, 0x0a /* Public */,
+      12,    1,  191,    2, 0x0a /* Public */,
+      13,    1,  194,    2, 0x0a /* Public */,
+      14,    1,  197,    2, 0x0a /* Public */,
+      15,    0,  200,    2, 0x0a /* Public */,
+      16,    0,  201,    2, 0x0a /* Public */,
+      17,    0,  202,    2, 0x0a /* Public */,
+      18,    0,  203,    2, 0x0a /* Public */,
+      19,    1,  204,    2, 0x0a /* Public */,
+      20,    1,  207,    2, 0x0a /* Public */,
+      21,    1,  210,    2, 0x0a /* Public */,
+      22,    1,  213,    2, 0x0a /* Public */,
+      23,    1,  216,    2, 0x0a /* Public */,
+      24,    1,  219,    2, 0x0a /* Public */,
+      25,    1,  222,    2, 0x0a /* Public */,
+      26,    1,  225,    2, 0x0a /* Public */,
+      27,    1,  228,    2, 0x0a /* Public */,
+      28,    1,  231,    2, 0x0a /* Public */,
+      29,    1,  234,    2, 0x0a /* Public */,
+      30,    1,  237,    2, 0x0a /* Public */,
+      31,    0,  240,    2, 0x0a /* Public */,
+      32,    0,  241,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void, QMetaType::Int,    3,
@@ -156,6 +158,7 @@ static const uint qt_meta_data_mainPage[] = {
     QMetaType::Void, QMetaType::Int,    3,
     QMetaType::Void, QMetaType::Int,    3,
     QMetaType::Void, QMetaType::Int,    3,
+    QMetaType::Void,
     QMetaType::Void,
 
        0        // eod
@@ -196,6 +199,7 @@ void mainPage::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 26: _t->skeletonColorComboBox((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 27: _t->editStateChange((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 28: _t->addCurValue(); break;
+        case 29: _t->swapLastT(); break;
         default: ;
         }
     }
@@ -226,13 +230,13 @@ int mainPage::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 29)
+        if (_id < 30)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 29;
+        _id -= 30;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 29)
+        if (_id < 30)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 29;
+        _id -= 30;
     }
     return _id;
 }
