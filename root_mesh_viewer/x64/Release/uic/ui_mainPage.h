@@ -94,7 +94,7 @@ public:
     {
         if (mainPageClass->objectName().isEmpty())
             mainPageClass->setObjectName(QStringLiteral("mainPageClass"));
-        mainPageClass->resize(811, 711);
+        mainPageClass->resize(809, 709);
         centralWidget = new QWidget(mainPageClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setMaximumSize(QSize(16777215, 16777215));

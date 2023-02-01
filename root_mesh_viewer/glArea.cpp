@@ -733,11 +733,13 @@ void glArea::label_junction(int idx, float h) {
 	glPushMatrix();
 	fout << "Pushed matrix\n";
 	glTranslatef(xo, yo, zo);
-	glScalef(1 / 152.38, 1 / 152.38, 1 / 152.38);
+	//glScalef(1 / 152.38, 1 / 152.38, 1 / 152.38);
 	fout << "translated and scaled\n";
 	//auto curr = reinterpret_cast<const unsigned char*>(to_string(idx).c_str());
 	//fout << "Cast\n";
 
+	const unsigned char* c = reinterpret_cast<const unsigned char*>('a');
+	// fout << c << "\n";
 	// why crash
 	glutStrokeCharacter(GLUT_STROKE_ROMAN, 'a');
 	//glutStrokeString(GLUT_STROKE_ROMAN, curr);

@@ -386,7 +386,7 @@ void mainPage::addCurValue() {
 
 		if (flag) {
 			ui->statusBar->showMessage("selected index " + qs);
-			//area->ind.push_back(cind);
+			area->ind.push_back(cind);
 		}
 	}
 }
