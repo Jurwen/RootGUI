@@ -1,4 +1,5 @@
-﻿  uic mainPage.ui
+﻿  Reading Qt configuration (C:/Qt/Qt5.11.0/5.11.0/msvc2017_64/bin/qmake)
+  uic mainPage.ui
   rcc mainPage.qrc
   moc mainPage.h
   moc glArea.h

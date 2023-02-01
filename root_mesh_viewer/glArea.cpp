@@ -724,29 +724,36 @@ ofstream fout("debug.txt");
 // from stackoverflow
 // simply believe
 void glArea::label_junction(int idx, float h) {
-	float scale = h / (119.05f + 33.33f);
-	float xo = vertexList[idx][2]; // x coord
-	float yo = vertexList[idx][3]; // y coord
-	float zo = vertexList[idx][4]; // z coord
-	fout << "set scale xo yo zo\n";
+	//float scale = h / (119.05f + 33.33f);
+	float xo = vertexList[idx][0]; // x coord
+	float yo = vertexList[idx][1]; // y coord
+	float zo = vertexList[idx][2]; // z coord
+	// float xo = center[0], yo = center[1], zo = center[2];
+	//fout << "set coords " << xo << " " << yo << " " << zo << "\n";
 
 	glPushMatrix();
-	fout << "Pushed matrix\n";
+	//fout << "Pushed matrix\n";
 	glTranslatef(xo, yo, zo);
-	//glScalef(1 / 152.38, 1 / 152.38, 1 / 152.38);
-	fout << "translated and scaled\n";
-	//auto curr = reinterpret_cast<const unsigned char*>(to_string(idx).c_str());
+	glScalef(1 / 152.38, 1 / 152.38, 1 / 200.38);
+	glRotatef(270.0, 1.0, 0.0, 0.0); // find right one
+
+	//fout << "translated and scaled\n";
+	auto curr = reinterpret_cast<const unsigned char*>(to_string(idx).c_str());
 	//fout << "Cast\n";
 
-	const unsigned char* c = reinterpret_cast<const unsigned char*>('a');
+	// const unsigned char* c = reinterpret_cast<const unsigned char*>('a');
 	// fout << c << "\n";
 	// why crash
-	glutStrokeCharacter(GLUT_STROKE_ROMAN, 'a');
-	//glutStrokeString(GLUT_STROKE_ROMAN, curr);
-	
-	fout << "stroked\n";
+	glFlush();
+	//int c = 'a';
+	//fout << glutStrokeWidth(GLUT_STROKE_ROMAN, c) << "\n";
+	//glutStrokeCharacter(GLUT_STROKE_ROMAN, 'A');
+	glutStrokeString(GLUT_STROKE_ROMAN, (const unsigned char*)to_string(idx).c_str());
+	glFlush();
+
+	//fout << "stroked\n";
 	glPopMatrix();
-	fout << "done\n";
+	//fout << "done\n";
 }
 
 // from stackOverflow
@@ -754,10 +761,10 @@ void glArea::draw_labels() {
 	float size = 0.5f;
 	float offsl = size * 0.7f;
 	glColor3d(0.0, 0.0, 0.0);
-	fout << "Color setting done" << "\n";
+	//fout << "Color setting done" << "\n";
 
 	for (const int &i : junctions) {
-		fout << "attempting junction " << i << "\n";
+		//fout << "attempting junction " << i << "\n";
 		label_junction(i, size);
 	}
 }
