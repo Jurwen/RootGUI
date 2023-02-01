@@ -495,6 +495,7 @@ glArea::glArea(QWidget *parent) :QOpenGLWidget(parent) {
 	if_drawNodeAbove = false;
 	if_drawNodeBelow = false;
 	if_drawPlane = false;
+	editOn = false;
 	alpha = 0.5;
 	line_width = 1.0;
 	line_color = Normal;
@@ -718,6 +719,47 @@ void glArea::draw_lines() {
 	// fout << "Successfully drew lines" << endl;
 }
 
+ofstream fout("debug.txt");
+
+// from stackoverflow
+// simply believe
+void glArea::label_junction(int idx, float h) {
+	float scale = h / (119.05f + 33.33f);
+	float xo = vertexList[idx][2];
+	float yo = vertexList[idx][3];
+	float zo = vertexList[idx][4];
+	fout << "set scale xo yo zo\n";
+
+	glPushMatrix();
+	fout << "Pushed matrix\n";
+	glTranslatef(xo, yo, zo);
+	glScalef(scale, scale, scale);
+	fout << "translated and scaled\n";
+	auto curr = reinterpret_cast<const unsigned char*>(to_string(idx).c_str());
+	fout << "Cast\n";
+
+	// why crash
+	glutStrokeCharacter(GLUT_STROKE_ROMAN, 'a');
+	//glutStrokeString(GLUT_STROKE_ROMAN, curr);
+	
+	fout << "stroked\n";
+	glPopMatrix();
+	fout << "done\n";
+}
+
+// from stackOverflow
+void glArea::draw_labels() {
+	float size = 0.5f;
+	float offsl = size * 0.7f;
+	glColor3d(0.0, 0.0, 0.0);
+	fout << "Color setting done" << "\n";
+
+	for (const int &i : junctions) {
+		fout << "attempting junction " << i << "\n";
+		label_junction(i, size);
+	}
+}
+
 void glArea::adjustView()
 {
 	float bbox[2][3] = { { 1.0E30F, 1.0E30F, 1.0E30F }, { -1.0E30F, -1.0E30F, -1.0E30F } };
@@ -814,6 +856,7 @@ void glArea::paintGL()
 	if (if_drawNodeAbove&&annotation_activated == 2) { draw_rootsAbove(); }
 	if (if_drawNodeBelow&&annotation_activated == 2) { draw_rootsBelow(); }
 	if (if_drawPlane&&annotation_activated == 2) { draw_plane(); }
+	if (editOn) { draw_labels(); }
 	glFlush();
 	update();
 }

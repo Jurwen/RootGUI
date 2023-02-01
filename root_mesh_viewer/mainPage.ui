@@ -395,6 +395,55 @@
            <string>Skeleton Color Range</string>
           </property>
          </widget>
+         <widget class="QCheckBox" name="editOn">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>560</y>
+            <width>74</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>EditOn</string>
+          </property>
+         </widget>
+         <widget class="QTextEdit" name="inputText">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>580</y>
+            <width>131</width>
+            <height>31</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="inputValue">
+          <property name="geometry">
+           <rect>
+            <x>150</x>
+            <y>580</y>
+            <width>31</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Go</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="swapLast">
+          <property name="geometry">
+           <rect>
+            <x>110</x>
+            <y>560</y>
+            <width>61</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Swap</string>
+          </property>
+         </widget>
         </widget>
         <widget class="QWidget" name="meshTab">
          <property name="styleSheet">

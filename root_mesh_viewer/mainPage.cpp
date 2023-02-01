@@ -44,6 +44,10 @@ mainPage::mainPage(QWidget *parent)
 	QObject::connect(ui->nodalRootAbove, SIGNAL(stateChanged(int)), this, SLOT(nodalRootAboveCheckBox(int)));
 	QObject::connect(ui->showPlane, SIGNAL(stateChanged(int)), this, SLOT(showPlaneCheckBox(int)));
 	QObject::connect(ui->skeletonColor, SIGNAL(currentIndexChanged(int)), this, SLOT(skeletonColorComboBox(int)));
+
+	QObject::connect(ui->editOn, SIGNAL(stateChanged(int)), this, SLOT(editStateChange(int)));
+	QObject::connect(ui->inputValue, SIGNAL(clicked()), this, SLOT(addCurValue()));
+	QObject::connect(ui->swapLast, SIGNAL(clicked()), this, SLOT(swapLastT()));
 }
 
 mainPage::~mainPage()
@@ -363,5 +367,41 @@ void mainPage::skeletonColorComboBox(int _s)
 		ui->jetMaxBox->setMaximum((double)*max_element(area->radius.begin(), area->radius.end()));
 		ui->jetMaxBox->setValue((double)*max_element(area->radius.begin(), area->radius.end()));
 		ui->jetMaxBox->setSingleStep(.01);
+	}
+}
+
+void mainPage::editStateChange(int _s) {
+	if (_s == Qt::Checked) {
+		area->editOn = 1;
+		area->ind.clear();
+	}
+	else area->editOn = 0;
+}
+
+void mainPage::addCurValue() {
+	if (area->editOn) {
+		bool flag;
+		QString qs = ui->inputText->toPlainText();
+		int cind = qs.toInt(&flag);
+
+		if (flag) {
+			ui->statusBar->showMessage("selected index " + qs);
+			//area->ind.push_back(cind);
+		}
+	}
+}
+
+void mainPage::swapLastT() {
+	if (area->ind.size() >= 3) {
+		int fchi = area->ind.back();
+		area->ind.pop_back();
+		int schi = area->ind.back();
+		area->ind.pop_back();
+		int par = area->ind.back();
+		area->ind.pop_back();
+
+		swap(area->level[fchi], area->level[schi]);
+		propagate(area->adjVertex, area->level, area->hierarchyCap, schi, par, area->level[schi] - area->level[fchi]);
+		propagate(area->adjVertex, area->level, area->hierarchyCap, fchi, par, area->level[fchi] - area->level[schi]);
 	}
 }

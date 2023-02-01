@@ -24,6 +24,7 @@
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
+#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
 #include "glarea.h"
 
@@ -60,6 +61,10 @@ public:
     QComboBox *skeletonColor;
     QLabel *label_7;
     QLabel *label_8;
+    QCheckBox *editOn;
+    QTextEdit *inputText;
+    QPushButton *inputValue;
+    QPushButton *swapLast;
     QWidget *meshTab;
     QCheckBox *showMesh;
     QSlider *alphaSlider;
@@ -210,6 +215,18 @@ public:
         label_8 = new QLabel(skeletonTab);
         label_8->setObjectName(QStringLiteral("label_8"));
         label_8->setGeometry(QRect(20, 220, 111, 31));
+        editOn = new QCheckBox(skeletonTab);
+        editOn->setObjectName(QStringLiteral("editOn"));
+        editOn->setGeometry(QRect(10, 560, 74, 20));
+        inputText = new QTextEdit(skeletonTab);
+        inputText->setObjectName(QStringLiteral("inputText"));
+        inputText->setGeometry(QRect(10, 580, 131, 31));
+        inputValue = new QPushButton(skeletonTab);
+        inputValue->setObjectName(QStringLiteral("inputValue"));
+        inputValue->setGeometry(QRect(150, 580, 31, 28));
+        swapLast = new QPushButton(skeletonTab);
+        swapLast->setObjectName(QStringLiteral("swapLast"));
+        swapLast->setGeometry(QRect(110, 560, 61, 21));
         tabWidget->addTab(skeletonTab, QString());
         meshTab = new QWidget();
         meshTab->setObjectName(QStringLiteral("meshTab"));
@@ -342,6 +359,9 @@ public:
 
         label_7->setText(QApplication::translate("mainPageClass", "Skeleton Color", nullptr));
         label_8->setText(QApplication::translate("mainPageClass", "Skeleton Color Range", nullptr));
+        editOn->setText(QApplication::translate("mainPageClass", "EditOn", nullptr));
+        inputValue->setText(QApplication::translate("mainPageClass", "Go", nullptr));
+        swapLast->setText(QApplication::translate("mainPageClass", "Swap", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(skeletonTab), QApplication::translate("mainPageClass", "Skeleton", nullptr));
         showMesh->setText(QApplication::translate("mainPageClass", "Show Mesh", nullptr));
         label->setText(QApplication::translate("mainPageClass", "Transparency", nullptr));

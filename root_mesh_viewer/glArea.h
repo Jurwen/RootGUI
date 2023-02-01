@@ -4,7 +4,8 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QWheelEvent>
-#include <GL/glut.h>
+//#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <iostream>
 #include <set>
 using namespace std;
@@ -64,10 +65,10 @@ public:
 	double back_colorR;
 	double back_colorG;
 	double back_colorB;
-	bool editOn = 0;
-	bool editval = 0;
 
+	bool editOn;
 	int par;
+	vector<int> ind;
 
 	myMesh *mesh;
 	Whorls whorls;
@@ -107,6 +108,9 @@ protected:
 	void draw_rootsAbove();
 	void draw_rootsBelow();
 	void draw_plane();
+
+	void draw_labels();
+	void label_junction(int idx, float h);
 
 private:
 	int skeleton_size;
