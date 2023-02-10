@@ -220,10 +220,10 @@ public:
         editOn->setGeometry(QRect(10, 560, 91, 20));
         inputText = new QTextEdit(skeletonTab);
         inputText->setObjectName(QStringLiteral("inputText"));
-        inputText->setGeometry(QRect(10, 580, 131, 31));
+        inputText->setGeometry(QRect(10, 580, 121, 31));
         inputValue = new QPushButton(skeletonTab);
         inputValue->setObjectName(QStringLiteral("inputValue"));
-        inputValue->setGeometry(QRect(150, 580, 31, 28));
+        inputValue->setGeometry(QRect(140, 580, 31, 28));
         swapLast = new QPushButton(skeletonTab);
         swapLast->setObjectName(QStringLiteral("swapLast"));
         swapLast->setGeometry(QRect(110, 560, 61, 21));

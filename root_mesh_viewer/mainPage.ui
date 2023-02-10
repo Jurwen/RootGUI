@@ -413,7 +413,7 @@
            <rect>
             <x>10</x>
             <y>580</y>
-            <width>131</width>
+            <width>121</width>
             <height>31</height>
            </rect>
           </property>
@@ -421,7 +421,7 @@
          <widget class="QPushButton" name="inputValue">
           <property name="geometry">
            <rect>
-            <x>150</x>
+            <x>140</x>
             <y>580</y>
             <width>31</width>
             <height>28</height>

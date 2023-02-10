@@ -29,8 +29,18 @@ void dfsid(int at, int par, vector< vector<int> >& adj, std::set<int> &junctions
 	return;
 }
 
+void directedDFS(int at, int par, const std::set<int>& junctions, const vector<vector<int>> &adj, const vector<int> &level, map<int, std::vector<int> > &childVertex) {
+	int pjunc = -1;
+	if (junctions.count(at)) pjunc = at;
 
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs) {
+	for (const auto & nx : adj[at]) {
+		if (nx == par || level[nx] == 0) continue;
+		if (pjunc != -1) childVertex[pjunc].push_back(nx);
+		directedDFS(nx, at, junctions, adj, level, childVertex);
+	}
+}
+
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs, map<int, std::vector<int> > &childVertex) {
 	// ofstream fout("getSkeleton.txt");
 	
 	ifstream myFile;
@@ -119,6 +129,12 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 		ID = 1;
 		IDs.resize(adj.size());
 		dfsid(*junctions.begin(), -1, adj, junctions, IDs);
+
+		for (int i = 0; i < vNum; i++) {
+			if (junctions.count(i) && level[i] == 0) {
+				directedDFS(i, -1, junctions, adj, level, childVertex);
+			}
+		}
 
 		// fout << "Success" << endl;
 		//From here, all the data from the file is been put into fileData. 
@@ -661,7 +677,55 @@ void glArea::draw_faces() {
 	glEndList();
 }
 
+ofstream fout("debug.txt");
 
+#define M_PI (double) 3.1415926535893932384626433
+void drawSphere(double r, int slice, int stack) {
+	int i, j;
+	for (i = 0; i <= slice; i++) {
+		double lat0 = M_PI * (-0.5 + (double)(i - 1) / slice);
+		double z0 = sin(lat0);
+		double zr0 = cos(lat0);
+
+		double lat1 = M_PI * (-0.5 + (double)i / slice);
+		double z1 = sin(lat1);
+		double zr1 = cos(lat1);
+
+		glBegin(GL_QUAD_STRIP);
+		for (j = 0; j <= stack; j++) {
+			double lng = 2 * M_PI * (double)(j - 1) / stack;
+			double x = cos(lng);
+			double y = sin(lng);
+
+			glNormal3f(x * zr0, y * zr0, z0);
+			glVertex3f(r * x * zr0, r * y * zr0, r * z0);
+			glNormal3f(x * zr1, y * zr1, z1);
+			glVertex3f(r * x * zr1, r * y * zr1, r * z1);
+		}
+		glEnd();
+	}
+};
+
+void glArea::highlight_junction(int idx) {
+	float xo = vertexList[idx][0];
+	float yo = vertexList[idx][1];
+	float zo = vertexList[idx][2];
+
+	//fout << "highlighting....\n";
+	glColor3d(105.0/255.0, 255.0/255.0, 195.0/255.0);
+	glPushMatrix();
+	glTranslatef(xo, yo, zo);
+	//fout << "drawing...\n";
+	glFlush();
+
+	// draw ur own circle lols
+	drawSphere(1.0, 60, 60);
+
+	/*glutSolidSphere(10.0, 60, 60);*/
+	glFlush();
+	//fout << "draw success\n";
+	glPopMatrix();
+}
 
 // CHECK HERE FOR JUNCTION POINT COLORING ERRORS
 void glArea::draw_lines() {
@@ -718,8 +782,6 @@ void glArea::draw_lines() {
 	}
 	// fout << "Successfully drew lines" << endl;
 }
-
-ofstream fout("debug.txt");
 
 // from stackoverflow
 // simply believe
@@ -866,6 +928,12 @@ void glArea::paintGL()
 	if (if_drawNodeBelow&&annotation_activated == 2) { draw_rootsBelow(); }
 	if (if_drawPlane&&annotation_activated == 2) { draw_plane(); }
 	if (editOn) { draw_labels(); }
+
+	if (!ind.empty()) {
+		for (int i = 0; i < ind.size(); i++) {
+			highlight_junction(ind[i]);
+		}
+	}
 	glFlush();
 	update();
 }
