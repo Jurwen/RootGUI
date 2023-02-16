@@ -44,7 +44,9 @@ public slots:
 	void skeletonColorComboBox(int _s);
 
 	void editStateChange(int _s);
-	void addCurValue();
+	//void addCurValue();
+	void visualizeParent();
+	void visualizeChild();
 	void swapLastT();
 private:
     Ui::mainPageClass *ui;

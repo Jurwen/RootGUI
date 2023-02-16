@@ -46,7 +46,9 @@ mainPage::mainPage(QWidget *parent)
 	QObject::connect(ui->skeletonColor, SIGNAL(currentIndexChanged(int)), this, SLOT(skeletonColorComboBox(int)));
 
 	QObject::connect(ui->editOn, SIGNAL(stateChanged(int)), this, SLOT(editStateChange(int)));
-	QObject::connect(ui->inputValue, SIGNAL(clicked()), this, SLOT(addCurValue()));
+	//QObject::connect(ui->inputValue, SIGNAL(clicked()), this, SLOT(addCurValue()));
+	QObject::connect(ui->inputValuePar, SIGNAL(clicked()), this, SLOT(visualizeParent()));
+	QObject::connect(ui->inputValueChi, SIGNAL(clicked()), this, SLOT(visualizeChild()));
 	QObject::connect(ui->swapLast, SIGNAL(clicked()), this, SLOT(swapLastT()));
 }
 
@@ -378,32 +380,70 @@ void mainPage::editStateChange(int _s) {
 	else area->editOn = 0;
 }
 
-void mainPage::addCurValue() {
+//void mainPage::addCurValue() {
+//	if (area->editOn) {
+//		bool flag;
+//		QString qs = ui->inputText->toPlainText();
+//		int cind = qs.toInt(&flag);
+//
+//		if (flag) {
+//			ui->statusBar->showMessage("selected index " + qs);
+//			area->ind.push_back(cind);
+//		}
+//	}
+//}
+
+void mainPage::visualizeParent() {
 	if (area->editOn) {
 		bool flag;
-		QString qs = ui->inputText->toPlainText();
+		QString qs = ui->inputTextPar->toPlainText();
+		int cind = qs.toInt(&flag);
+	
+		if (flag) {
+			ui->statusBar->showMessage("selected index " + qs);
+			area->parVisualize = cind;
+			//area->ind.push_back(cind);
+		}
+	}
+}
+
+void mainPage::visualizeChild() {
+	if (area->editOn) {
+		bool flag;
+		QString qs = ui->inputTextChi->toPlainText();
 		int cind = qs.toInt(&flag);
 
 		if (flag) {
 			ui->statusBar->showMessage("selected index " + qs);
-			area->ind.push_back(cind);
+			area->chiVisualize = cind;
+			//area->ind.push_back(cind);
 		}
 	}
 }
 
 void mainPage::swapLastT() {
-	if (area->ind.size() >= 3) {
-		int fchi = area->ind.back();
-		area->ind.pop_back();
-		int schi = area->ind.back();
-		area->ind.pop_back();
-		int par = area->ind.back();
-		area->ind.pop_back();
-		//ui->statusBar->showMessage("reprop " + QString(fchi) + " " + QString(schi));
+	if (area->parVisualize != -1 && area->chiVisualize != -1) {
+		int schi = area->chiVisualize;
+		int par = area->parVisualize;
+		int fchi = -1; /*FIND ADJ TO PAR WITH SAME COLOR*/
+		for (const auto &v : area->childVertex[par]) {
+			if (area->level[v] == area->level[par])
+			{
+				fchi = v;
+				break;
+			}
+		}
 
-		swap(area->level[fchi], area->level[schi]);
-		propagate(area->adjVertex, area->level, area->hierarchyCap, schi, -1, par, area->level[schi] - area->level[fchi]);
-		propagate(area->adjVertex, area->level, area->hierarchyCap, fchi, -1, par, area->level[fchi] - area->level[schi]);
+		area->fchiVisualize = fchi;
+		if (fchi == -1) ui->statusBar->showMessage("error in finding the continuation vertice");
+		else {
+			//ui->statusBar->showMessage("reprop " + QString(fchi) + " " + QString(schi));
+			ui->statusBar->showMessage("repropagating");
+
+			swap(area->level[fchi], area->level[schi]);
+			propagate(area->adjVertex, area->level, area->hierarchyCap, schi, -1, par, area->level[schi] - area->level[fchi]);
+			propagate(area->adjVertex, area->level, area->hierarchyCap, fchi, -1, par, area->level[fchi] - area->level[schi]);
+		}
 	}
 	else ui->statusBar->showMessage("not enough indices");
 }

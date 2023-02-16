@@ -929,11 +929,9 @@ void glArea::paintGL()
 	if (if_drawPlane&&annotation_activated == 2) { draw_plane(); }
 	if (editOn) { draw_labels(); }
 
-	if (!ind.empty()) {
-		for (int i = 0; i < ind.size(); i++) {
-			highlight_junction(ind[i]);
-		}
-	}
+	if (parVisualize != -1) { highlight_junction(parVisualize); } /*ALSO ADD ARROWS*/
+	if (chiVisualize != -1) { highlight_junction(chiVisualize); }
+	if (fchiVisualize != -1) { highlight_junction(fchiVisualize); }
 	glFlush();
 	update();
 }

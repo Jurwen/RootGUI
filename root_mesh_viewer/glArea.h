@@ -68,7 +68,6 @@ public:
 
 	bool editOn;
 	int par;
-	vector<int> ind;
 
 	myMesh *mesh;
 	Whorls whorls;
@@ -94,6 +93,8 @@ public:
 	vector<vector<float>> n = { {},{},{} }; //PCA axes
 	int annotation_activated = 0;
 	int hierarchyCap = 5;
+
+	int parVisualize = -1, chiVisualize = -1, fchiVisualize = -1;
 
 protected:
 	void initializeGL();
