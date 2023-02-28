@@ -79,7 +79,7 @@ public:
 	std::set<int> junctions;
 	vector<int> IDs;
 
-	vector<vector<int>> adjJunc;
+	vector<vector<int>> juncAdj;
 	map<int, std::vector<int> > childVertex;
 
 	vector<double long> radius;
@@ -115,6 +115,7 @@ protected:
 
 	void draw_labels();
 	void label_junction(int idx, float h);
+	void drawArrow(GLdouble x1, GLdouble y1, GLdouble z1, GLdouble x2, GLdouble y2, GLdouble z2, GLdouble D);
 
 	void highlight_junction(int idx);
 
@@ -143,7 +144,7 @@ myMesh * ReaderOBj(string fname2);
 myMesh * ReadOffFile(const char *filename);
 vector<string> split(const string &str, const string &pattern);
 void get_normal(Face& face);
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int>& junctions, vector<int> & IDs, map<int, std::vector<int> > &childVertex);
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int>& junctions, vector<int> & IDs, map<int, std::vector<int> > &childVertex, std::vector<vector<int> > &juncAdj);
 int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n);
 
 //jetcolor:
@@ -152,4 +153,4 @@ COLOR GetColor(double v, double vmin, double vmax);
 void propagate(vector<vector<int>>& adj, vector<int> &level, int &hierarchyCap, int v, int pv, int paridx, int diff);
 void dfsid(int at, int par, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs);
 
-void directedDFS(int at, int par, const std::set<int> &junctions, const vector<vector<int>> &adj, const vector<int> &level, map<int, std::vector<int> > &childVertex);
+void directedDFS(int at, int par, int ppjunc, const std::set<int> &junctions, const vector<vector<int>> &adj, const vector<int> &level, map<int, std::vector<int> > &childVertex, std::vector<vector<int>> &juncAdj);

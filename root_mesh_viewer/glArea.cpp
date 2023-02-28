@@ -29,18 +29,22 @@ void dfsid(int at, int par, vector< vector<int> >& adj, std::set<int> &junctions
 	return;
 }
 
-void directedDFS(int at, int par, const std::set<int>& junctions, const vector<vector<int>> &adj, const vector<int> &level, map<int, std::vector<int> > &childVertex) {
+void directedDFS(int at, int par, int ppjunc, const std::set<int>& junctions, const vector<vector<int>> &adj, const vector<int> &level, map<int, std::vector<int> > &childVertex, vector<vector<int>> &juncAdj) {
 	int pjunc = -1;
-	if (junctions.count(at)) pjunc = at;
-
+	
+	if (junctions.count(at)) {
+		if (ppjunc != -1) juncAdj[ppjunc].push_back(at);
+		pjunc = at;
+	}
 	for (const auto & nx : adj[at]) {
 		if (nx == par || level[nx] == 0) continue;
 		if (pjunc != -1) childVertex[pjunc].push_back(nx);
-		directedDFS(nx, at, junctions, adj, level, childVertex);
+		if(pjunc != -1) directedDFS(nx, at, pjunc, junctions, adj, level, childVertex, juncAdj);
+		else directedDFS(nx, at, ppjunc, junctions, adj, level, childVertex, juncAdj);
 	}
 }
 
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs, map<int, std::vector<int> > &childVertex) {
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs, map<int, std::vector<int> > &childVertex, vector<vector<int> > &juncAdj) {
 	// ofstream fout("getSkeleton.txt");
 	
 	ifstream myFile;
@@ -126,13 +130,11 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 			if (adj[i].size() > 2)
 				junctions.insert(i);
 
-		ID = 1;
-		IDs.resize(adj.size());
-		dfsid(*junctions.begin(), -1, adj, junctions, IDs);
+		juncAdj.resize(adj.size());
 
 		for (int i = 0; i < vNum; i++) {
 			if (junctions.count(i) && level[i] == 0) {
-				directedDFS(i, -1, junctions, adj, level, childVertex);
+				directedDFS(i, -1, -1, junctions, adj, level, childVertex, juncAdj);
 			}
 		}
 
@@ -706,6 +708,62 @@ void drawSphere(double r, int slice, int stack) {
 	}
 };
 
+// from stackoverflow
+#define RADPERDEG 0.0174533
+
+void glArea::drawArrow(GLdouble x1, GLdouble y1, GLdouble z1, GLdouble x2, GLdouble y2, GLdouble z2, GLdouble D)
+{
+	double x = x2 - x1;
+	double y = y2 - y1;
+	double z = z2 - z1;
+	double L = sqrt(x*x + y * y + z * z);
+
+	GLUquadricObj *quadObj;
+
+	glPushMatrix();
+
+	glTranslated(x1, y1, z1);
+
+	if ((x != 0.) || (y != 0.)) {
+		glRotated(atan2(y, x) / RADPERDEG, 0., 0., 1.);
+		glRotated(atan2(sqrt(x*x + y * y), z) / RADPERDEG, 0., 1., 0.);
+	}
+	else if (z < 0) {
+		glRotated(180, 1., 0., 0.);
+	}
+
+	glTranslatef(0, 0, L - 4 * D);
+
+	quadObj = gluNewQuadric();
+	gluQuadricDrawStyle(quadObj, GLU_FILL);
+	gluQuadricNormals(quadObj, GLU_SMOOTH);
+	gluCylinder(quadObj, 2 * D, 0.0, 4 * D, 32, 1);
+	gluDeleteQuadric(quadObj);
+
+	quadObj = gluNewQuadric();
+	gluQuadricDrawStyle(quadObj, GLU_FILL);
+	gluQuadricNormals(quadObj, GLU_SMOOTH);
+	gluDisk(quadObj, 0.0, 2 * D, 32, 1);
+	gluDeleteQuadric(quadObj);
+
+	glTranslatef(0, 0, -L + 4 * D);
+
+	quadObj = gluNewQuadric();
+	gluQuadricDrawStyle(quadObj, GLU_FILL);
+	gluQuadricNormals(quadObj, GLU_SMOOTH);
+	gluCylinder(quadObj, D, D, L - 4 * D, 32, 1);
+	gluDeleteQuadric(quadObj);
+
+	quadObj = gluNewQuadric();
+	gluQuadricDrawStyle(quadObj, GLU_FILL);
+	gluQuadricNormals(quadObj, GLU_SMOOTH);
+	gluDisk(quadObj, 0.0, D, 32, 1);
+	gluDeleteQuadric(quadObj);
+
+	glPopMatrix();
+
+}
+
 void glArea::highlight_junction(int idx) {
 	float xo = vertexList[idx][0];
 	float yo = vertexList[idx][1];
@@ -719,7 +777,7 @@ void glArea::highlight_junction(int idx) {
 	glFlush();
 
 	// draw ur own circle lols
-	drawSphere(1.0, 60, 60);
+	drawSphere(0.7, 60, 60);
 
 	/*glutSolidSphere(10.0, 60, 60);*/
 	glFlush();
@@ -929,9 +987,23 @@ void glArea::paintGL()
 	if (if_drawPlane&&annotation_activated == 2) { draw_plane(); }
 	if (editOn) { draw_labels(); }
 
-	if (parVisualize != -1) { highlight_junction(parVisualize); } /*ALSO ADD ARROWS*/
+	if (parVisualize != -1) { highlight_junction(parVisualize); }
 	if (chiVisualize != -1) { highlight_junction(chiVisualize); }
 	if (fchiVisualize != -1) { highlight_junction(fchiVisualize); }
+	if (parVisualize != -1 && chiVisualize == -1) {
+		// follow path 5-6 times then draw arrow, change
+		glColor3f(0.784, 0.12, 0.232);
+		for (const auto &nx : juncAdj[parVisualize]) {
+			drawArrow(vertexList[parVisualize][0], vertexList[parVisualize][1], vertexList[parVisualize][2],
+				vertexList[nx][0], vertexList[nx][1], vertexList[nx][2], 0.1);
+		}
+	}
+	if (parVisualize != -1 && chiVisualize != -1) {
+		// same thing here
+		glColor3f(0.784, 0.12, 0.232);
+		drawArrow(vertexList[parVisualize][0], vertexList[parVisualize][1], vertexList[parVisualize][2],
+			vertexList[chiVisualize][0], vertexList[chiVisualize][1], vertexList[chiVisualize][2], 0.1);	
+	}
 	glFlush();
 	update();
 }
@@ -1013,22 +1085,17 @@ COLOR GetColor(double v, double vmin, double vmax) //code from stack overflow
 }
 
 //ofstream prop("propagate.txt");
-void propagate(vector<vector<int>>& adj, vector<int>& level, int& hierarchyCap, int vertex, int pv, int paridx, int diff)
+void propagate(vector<vector<int>>& adj, 
+	vector<int>& level, int& hierarchyCap, 
+	int vertex, int pv, int paridx, int diff)
 {
-	// prop <<  "at " <<  vertex << " w/ level " << level[vertex] << "\n";
-	/*for (int i = 0; i < level.size(); i++)
-		prop << level[i] << " ";
-	prop << "\n";
-	*/
 	for (const auto &nx : adj[vertex])
 	{
 		if (nx != pv && nx != paridx)
 		{
-			// prop << nx << " " << level[nx] << " " << diff << "\n";
 			level[nx] += diff;
-			//hierarchyCap = max(level[nx], hierarchyCap);
-			propagate(adj, level, hierarchyCap, nx, vertex, paridx, diff);
+			propagate(adj, level, hierarchyCap, nx, 
+				vertex, paridx, diff);
 		}
 	}
-	// prop << "RETURNED\n";
 }

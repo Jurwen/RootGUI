@@ -184,7 +184,7 @@ void mainPage::browseSkelClicked()
 		NULL/*, QFileDialog::DontUseNativeDialog*/);
 	ui->skelFileLabel->setText(skel_file);
 	QByteArray skel_byteArray = skel_file.toLatin1();
-	if (getSkeleton(area->vertexList, area->edgeList, skel_byteArray.data(), area->level, area->radius, area->adjVertex, area->junctions, area->IDs, area->childVertex) == 1) {
+	if (getSkeleton(area->vertexList, area->edgeList, skel_byteArray.data(), area->level, area->radius, area->adjVertex, area->junctions, area->IDs, area->childVertex, area->juncAdj) == 1) {
 		area->if_drawWhorlAbove = false;
 		area->if_drawWhorlBelow = false;
 		area->if_drawNodeAbove = false;
@@ -375,7 +375,7 @@ void mainPage::skeletonColorComboBox(int _s)
 void mainPage::editStateChange(int _s) {
 	if (_s == Qt::Checked) {
 		area->editOn = 1;
-		area->ind.clear();
+		//area->ind.clear();
 	}
 	else area->editOn = 0;
 }
@@ -400,7 +400,7 @@ void mainPage::visualizeParent() {
 		int cind = qs.toInt(&flag);
 	
 		if (flag) {
-			ui->statusBar->showMessage("selected index " + qs);
+			ui->statusBar->showMessage("selected parent " + qs);
 			area->parVisualize = cind;
 			//area->ind.push_back(cind);
 		}
@@ -414,7 +414,7 @@ void mainPage::visualizeChild() {
 		int cind = qs.toInt(&flag);
 
 		if (flag) {
-			ui->statusBar->showMessage("selected index " + qs);
+			ui->statusBar->showMessage("selected child " + qs);
 			area->chiVisualize = cind;
 			//area->ind.push_back(cind);
 		}
@@ -443,6 +443,9 @@ void mainPage::swapLastT() {
 			swap(area->level[fchi], area->level[schi]);
 			propagate(area->adjVertex, area->level, area->hierarchyCap, schi, -1, par, area->level[schi] - area->level[fchi]);
 			propagate(area->adjVertex, area->level, area->hierarchyCap, fchi, -1, par, area->level[fchi] - area->level[schi]);
+			area->fchiVisualize = -1;
+			area->parVisualize = -1;
+			area->chiVisualize = -1;
 		}
 	}
 	else ui->statusBar->showMessage("not enough indices");
