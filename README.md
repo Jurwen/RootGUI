@@ -16,5 +16,6 @@ How to use:
 Contact: 
 - Dan Zeng (danzeng@wustl.edu)
 - Yiwen Ju (yiwen.ju@wustl.edu)
+- Tina Wang (xiaogewang2018@gmail.com)
 
 
