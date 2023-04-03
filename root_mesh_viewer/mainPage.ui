@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>811</width>
-    <height>711</height>
+    <width>809</width>
+    <height>709</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -393,6 +393,78 @@
           </property>
           <property name="text">
            <string>Skeleton Color Range</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="editOn">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>560</y>
+            <width>91</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Edit Hierarchy</string>
+          </property>
+         </widget>
+         <widget class="QTextEdit" name="inputTextPar">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>580</y>
+            <width>61</width>
+            <height>31</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="inputValueChi">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>580</y>
+            <width>31</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Go</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="swapLast">
+          <property name="geometry">
+           <rect>
+            <x>110</x>
+            <y>560</y>
+            <width>61</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Swap</string>
+          </property>
+         </widget>
+         <widget class="QTextEdit" name="inputTextChi">
+          <property name="geometry">
+           <rect>
+            <x>100</x>
+            <y>580</y>
+            <width>60</width>
+            <height>31</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="inputValuePar">
+          <property name="geometry">
+           <rect>
+            <x>70</x>
+            <y>580</y>
+            <width>31</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Go</string>
           </property>
          </widget>
         </widget>

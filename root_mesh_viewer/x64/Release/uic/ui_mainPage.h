@@ -24,6 +24,7 @@
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
+#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
 #include "glarea.h"
 
@@ -60,6 +61,12 @@ public:
     QComboBox *skeletonColor;
     QLabel *label_7;
     QLabel *label_8;
+    QCheckBox *editOn;
+    QTextEdit *inputTextPar;
+    QPushButton *inputValueChi;
+    QPushButton *swapLast;
+    QTextEdit *inputTextChi;
+    QPushButton *inputValuePar;
     QWidget *meshTab;
     QCheckBox *showMesh;
     QSlider *alphaSlider;
@@ -89,7 +96,7 @@ public:
     {
         if (mainPageClass->objectName().isEmpty())
             mainPageClass->setObjectName(QStringLiteral("mainPageClass"));
-        mainPageClass->resize(811, 711);
+        mainPageClass->resize(809, 709);
         centralWidget = new QWidget(mainPageClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setMaximumSize(QSize(16777215, 16777215));
@@ -210,6 +217,24 @@ public:
         label_8 = new QLabel(skeletonTab);
         label_8->setObjectName(QStringLiteral("label_8"));
         label_8->setGeometry(QRect(20, 220, 111, 31));
+        editOn = new QCheckBox(skeletonTab);
+        editOn->setObjectName(QStringLiteral("editOn"));
+        editOn->setGeometry(QRect(10, 560, 91, 20));
+        inputTextPar = new QTextEdit(skeletonTab);
+        inputTextPar->setObjectName(QStringLiteral("inputTextPar"));
+        inputTextPar->setGeometry(QRect(10, 580, 61, 31));
+        inputValueChi = new QPushButton(skeletonTab);
+        inputValueChi->setObjectName(QStringLiteral("inputValueChi"));
+        inputValueChi->setGeometry(QRect(160, 580, 31, 28));
+        swapLast = new QPushButton(skeletonTab);
+        swapLast->setObjectName(QStringLiteral("swapLast"));
+        swapLast->setGeometry(QRect(110, 560, 61, 21));
+        inputTextChi = new QTextEdit(skeletonTab);
+        inputTextChi->setObjectName(QStringLiteral("inputTextChi"));
+        inputTextChi->setGeometry(QRect(100, 580, 60, 31));
+        inputValuePar = new QPushButton(skeletonTab);
+        inputValuePar->setObjectName(QStringLiteral("inputValuePar"));
+        inputValuePar->setGeometry(QRect(70, 580, 31, 28));
         tabWidget->addTab(skeletonTab, QString());
         meshTab = new QWidget();
         meshTab->setObjectName(QStringLiteral("meshTab"));
@@ -342,6 +367,10 @@ public:
 
         label_7->setText(QApplication::translate("mainPageClass", "Skeleton Color", nullptr));
         label_8->setText(QApplication::translate("mainPageClass", "Skeleton Color Range", nullptr));
+        editOn->setText(QApplication::translate("mainPageClass", "Edit Hierarchy", nullptr));
+        inputValueChi->setText(QApplication::translate("mainPageClass", "Go", nullptr));
+        swapLast->setText(QApplication::translate("mainPageClass", "Swap", nullptr));
+        inputValuePar->setText(QApplication::translate("mainPageClass", "Go", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(skeletonTab), QApplication::translate("mainPageClass", "Skeleton", nullptr));
         showMesh->setText(QApplication::translate("mainPageClass", "Show Mesh", nullptr));
         label->setText(QApplication::translate("mainPageClass", "Transparency", nullptr));

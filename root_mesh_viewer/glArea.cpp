@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include<string>
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,11 +15,37 @@ GLfloat LightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 static GLfloat light0_position[] = { 4.0, 4.0, 4.0, 0.0 };
 static GLfloat light1_position[] = { -3.0, -3.0, -3.0, 0.0 };
 
+int ID = 1;
 
+void dfsid(int at, int par, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs)
+{
+	IDs[at] = ID;
+	for(const auto &nx : adj[at])
+		if (nx != par)
+		{
+			if (junctions.count(nx)) ID++;
+			dfsid(nx, at, adj, junctions, IDs);
+		}
+	return;
+}
 
-
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius) {
+void directedDFS(int at, int par, int ppjunc, const std::set<int>& junctions, const vector<vector<int>> &adj, const vector<int> &level, map<int, std::vector<int> > &childVertex, vector<vector<int>> &juncAdj) {
+	int pjunc = -1;
 	
+	if (junctions.count(at)) {
+		if (ppjunc != -1) juncAdj[ppjunc].push_back(at);
+		pjunc = at;
+	}
+	for (const auto & nx : adj[at]) {
+		if (nx == par || level[nx] == 0) continue;
+		if (pjunc != -1) childVertex[pjunc].push_back(nx);
+		if(pjunc != -1) directedDFS(nx, at, pjunc, junctions, adj, level, childVertex, juncAdj);
+		else directedDFS(nx, at, ppjunc, junctions, adj, level, childVertex, juncAdj);
+	}
+}
+
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs, map<int, std::vector<int> > &childVertex, vector<vector<int> > &juncAdj) {
+	// ofstream fout("getSkeleton.txt");
 	
 	ifstream myFile;
 	myFile.open(fileName);
@@ -28,6 +54,8 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 		edgeData.clear();
 		radius.clear();
 		level.clear();
+		adj.clear();
+
 		string word, line;
 		double long verCoordinate;
 		int edgeIndices;
@@ -80,21 +108,43 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 				}
 				vertexData.push_back(vertex);
 			}
+			
+			// ###
+			adj.resize(vNum + 3);
 			if (lineNum >= 16 + vNum && lineNum < 16 + vNum + eNum) {
 				vector<int> edge;
 				istringstream iss(line);
 				while (iss >> edgeIndices) {
 					edge.push_back(edgeIndices);
 				}
+
+				// assume edges connect 2 vertices
+				adj[edge[0]].push_back(edge[1]);
+				adj[edge[1]].push_back(edge[0]);
+
 				edgeData.push_back(edge);
 			}
 		}
+
+		for (int i = 0; i < adj.size(); i++)
+			if (adj[i].size() > 2)
+				junctions.insert(i);
+
+		juncAdj.resize(adj.size());
+
+		for (int i = 0; i < vNum; i++) {
+			if (junctions.count(i) && level[i] == 0) {
+				directedDFS(i, -1, -1, junctions, adj, level, childVertex, juncAdj);
+			}
+		}
+
+		// fout << "Success" << endl;
 		//From here, all the data from the file is been put into fileData. 
 		myFile.close();
 		return 1;
 	}
 	else { // when the file is not opened after calling the open function, display an error msg.
-		cout << "Error/ Cannot open the file" << endl;
+		// fout << "Error/ Cannot open the file" << endl;
 		return 0;
 	}
 }
@@ -463,6 +513,7 @@ glArea::glArea(QWidget *parent) :QOpenGLWidget(parent) {
 	if_drawNodeAbove = false;
 	if_drawNodeBelow = false;
 	if_drawPlane = false;
+	editOn = false;
 	alpha = 0.5;
 	line_width = 1.0;
 	line_color = Normal;
@@ -628,17 +679,127 @@ void glArea::draw_faces() {
 	glEndList();
 }
 
+ofstream fout("debug.txt");
 
+#define M_PI (double) 3.1415926535893932384626433
+void drawSphere(double r, int slice, int stack) {
+	int i, j;
+	for (i = 0; i <= slice; i++) {
+		double lat0 = M_PI * (-0.5 + (double)(i - 1) / slice);
+		double z0 = sin(lat0);
+		double zr0 = cos(lat0);
 
+		double lat1 = M_PI * (-0.5 + (double)i / slice);
+		double z1 = sin(lat1);
+		double zr1 = cos(lat1);
+
+		glBegin(GL_QUAD_STRIP);
+		for (j = 0; j <= stack; j++) {
+			double lng = 2 * M_PI * (double)(j - 1) / stack;
+			double x = cos(lng);
+			double y = sin(lng);
+
+			glNormal3f(x * zr0, y * zr0, z0);
+			glVertex3f(r * x * zr0, r * y * zr0, r * z0);
+			glNormal3f(x * zr1, y * zr1, z1);
+			glVertex3f(r * x * zr1, r * y * zr1, r * z1);
+		}
+		glEnd();
+	}
+};
+
+// from stackoverflow
+#define RADPERDEG 0.0174533
+
+void glArea::drawArrow(GLdouble x1, GLdouble y1, GLdouble z1, GLdouble x2, GLdouble y2, GLdouble z2, GLdouble D)
+{
+	double x = x2 - x1;
+	double y = y2 - y1;
+	double z = z2 - z1;
+	double L = sqrt(x*x + y * y + z * z);
+
+	GLUquadricObj *quadObj;
+
+	glPushMatrix();
+
+	glTranslated(x1, y1, z1);
+
+	if ((x != 0.) || (y != 0.)) {
+		glRotated(atan2(y, x) / RADPERDEG, 0., 0., 1.);
+		glRotated(atan2(sqrt(x*x + y * y), z) / RADPERDEG, 0., 1., 0.);
+	}
+	else if (z < 0) {
+		glRotated(180, 1., 0., 0.);
+	}
+
+	glTranslatef(0, 0, L - 4 * D);
+
+	quadObj = gluNewQuadric();
+	gluQuadricDrawStyle(quadObj, GLU_FILL);
+	gluQuadricNormals(quadObj, GLU_SMOOTH);
+	gluCylinder(quadObj, 2 * D, 0.0, 4 * D, 32, 1);
+	gluDeleteQuadric(quadObj);
+
+	quadObj = gluNewQuadric();
+	gluQuadricDrawStyle(quadObj, GLU_FILL);
+	gluQuadricNormals(quadObj, GLU_SMOOTH);
+	gluDisk(quadObj, 0.0, 2 * D, 32, 1);
+	gluDeleteQuadric(quadObj);
+
+	glTranslatef(0, 0, -L + 4 * D);
+
+	quadObj = gluNewQuadric();
+	gluQuadricDrawStyle(quadObj, GLU_FILL);
+	gluQuadricNormals(quadObj, GLU_SMOOTH);
+	gluCylinder(quadObj, D, D, L - 4 * D, 32, 1);
+	gluDeleteQuadric(quadObj);
+
+	quadObj = gluNewQuadric();
+	gluQuadricDrawStyle(quadObj, GLU_FILL);
+	gluQuadricNormals(quadObj, GLU_SMOOTH);
+	gluDisk(quadObj, 0.0, D, 32, 1);
+	gluDeleteQuadric(quadObj);
+
+	glPopMatrix();
+
+}
+
+void glArea::highlight_junction(int idx) {
+	float xo = vertexList[idx][0];
+	float yo = vertexList[idx][1];
+	float zo = vertexList[idx][2];
+
+	//fout << "highlighting....\n";
+	glColor3d(105.0/255.0, 255.0/255.0, 195.0/255.0);
+	glPushMatrix();
+	glTranslatef(xo, yo, zo);
+	//fout << "drawing...\n";
+	glFlush();
+
+	// draw ur own circle lols
+	drawSphere(0.7, 60, 60);
+
+	/*glutSolidSphere(10.0, 60, 60);*/
+	glFlush();
+	//fout << "draw success\n";
+	glPopMatrix();
+}
+
+// CHECK HERE FOR JUNCTION POINT COLORING ERRORS
 void glArea::draw_lines() {
+	// ofstream fout("draw_lines.txt");
+	// fout << "Drawing lines..." << endl;
 	if (line_color == Normal) {
+		// fout << "Drawing Normal lines..." << endl;
 		glColor4f(0.0, 0.0, 0.0, 1.0);
 		glBegin(GL_LINES);
 		for (int j = 0; j < edgeList.size(); j++) {
+			// fout << edgeList[j][0] << " " << edgeList[j][1] << endl;
 			glVertex3f(vertexList[edgeList[j][0]][0], vertexList[edgeList[j][0]][1], vertexList[edgeList[j][0]][2]);
 			glVertex3f(vertexList[edgeList[j][1]][0], vertexList[edgeList[j][1]][1], vertexList[edgeList[j][1]][2]);
 		}
 		glEnd();
+		// fout << "Finished drawing Normal lines..." << endl;
 	}
 	else if (line_color == Jet) {
 		glBegin(GL_LINES);
@@ -651,12 +812,25 @@ void glArea::draw_lines() {
 		glEnd();
 	}
 	else if (line_color == Hierarchy) {
+		// fout << "Drawing hierarchal lines..." << endl;
 		glBegin(GL_LINES);
 		int maxLvl = (double)*max_element(level.begin(), level.end());
+		
+		// fout << hierarchyCap << endl;
+		// fout << maxLvl << endl;
 		if (maxLvl > hierarchyCap) { maxLvl = hierarchyCap; }; //hierarchy view fixed to have hierarchyCap as max level during showing
+		
 		for (int j = 0; j < edgeList.size(); j++) {
-			if (showLevels[level[edgeList[j][0]]]) {
-				COLOR edge_color = GetColor((level[edgeList[j][0]] > hierarchyCap)? hierarchyCap :level[edgeList[j][0]], 0, maxLvl);
+			// changed edgelist[j][0] whenever it was used to get color
+			// to the max of the two
+
+			// fout << edgeList[j][0] << " " << edgeList[j][1] << endl;
+			if (showLevels[max(level[edgeList[j][0]], level[edgeList[j][1]])]) {
+				COLOR edge_color = GetColor((max(level[edgeList[j][0]], level[edgeList[j][1]]) > hierarchyCap)? hierarchyCap : max(level[edgeList[j][0]], level[edgeList[j][1]]), 0, maxLvl);
+				
+				// fout << edgeList[j][0] << " " << edgeList[j][1] << " ";
+				// fout << edge_color.r << " " << edge_color.g << " " << edge_color.b << endl;
+
 				glColor4f((float)edge_color.r, (float)edge_color.g, (float)edge_color.b, 1.0);
 				glVertex3f(vertexList[edgeList[j][0]][0], vertexList[edgeList[j][0]][1], vertexList[edgeList[j][0]][2]);
 				glVertex3f(vertexList[edgeList[j][1]][0], vertexList[edgeList[j][1]][1], vertexList[edgeList[j][1]][2]);
@@ -664,7 +838,55 @@ void glArea::draw_lines() {
 		}
 		glEnd();
 	}
+	// fout << "Successfully drew lines" << endl;
+}
 
+// from stackoverflow
+// simply believe
+void glArea::label_junction(int idx, float h) {
+	//float scale = h / (119.05f + 33.33f);
+	float xo = vertexList[idx][0]; // x coord
+	float yo = vertexList[idx][1]; // y coord
+	float zo = vertexList[idx][2]; // z coord
+	// float xo = center[0], yo = center[1], zo = center[2];
+	//fout << "set coords " << xo << " " << yo << " " << zo << "\n";
+
+	glPushMatrix();
+	//fout << "Pushed matrix\n";
+	glTranslatef(xo, yo, zo);
+	glScalef(1 / 152.38, 1 / 152.38, 1 / 200.38);
+	glRotatef(270.0, 1.0, 0.0, 0.0); // find right one
+
+	//fout << "translated and scaled\n";
+	auto curr = reinterpret_cast<const unsigned char*>(to_string(idx).c_str());
+	//fout << "Cast\n";
+
+	// const unsigned char* c = reinterpret_cast<const unsigned char*>('a');
+	// fout << c << "\n";
+	// why crash
+	glFlush();
+	//int c = 'a';
+	//fout << glutStrokeWidth(GLUT_STROKE_ROMAN, c) << "\n";
+	//glutStrokeCharacter(GLUT_STROKE_ROMAN, 'A');
+	glutStrokeString(GLUT_STROKE_ROMAN, (const unsigned char*)to_string(idx).c_str());
+	glFlush();
+
+	//fout << "stroked\n";
+	glPopMatrix();
+	//fout << "done\n";
+}
+
+// from stackOverflow
+void glArea::draw_labels() {
+	float size = 0.5f;
+	float offsl = size * 0.7f;
+	glColor3d(0.0, 0.0, 0.0);
+	//fout << "Color setting done" << "\n";
+
+	for (const int &i : junctions) {
+		//fout << "attempting junction " << i << "\n";
+		label_junction(i, size);
+	}
 }
 
 void glArea::adjustView()
@@ -763,6 +985,25 @@ void glArea::paintGL()
 	if (if_drawNodeAbove&&annotation_activated == 2) { draw_rootsAbove(); }
 	if (if_drawNodeBelow&&annotation_activated == 2) { draw_rootsBelow(); }
 	if (if_drawPlane&&annotation_activated == 2) { draw_plane(); }
+	if (editOn) { draw_labels(); }
+
+	if (parVisualize != -1) { highlight_junction(parVisualize); }
+	if (chiVisualize != -1) { highlight_junction(chiVisualize); }
+	if (fchiVisualize != -1) { highlight_junction(fchiVisualize); }
+	if (parVisualize != -1 && chiVisualize == -1) {
+		// follow path 5-6 times then draw arrow, change
+		glColor3f(0.784, 0.12, 0.232);
+		for (const auto &nx : juncAdj[parVisualize]) {
+			drawArrow(vertexList[parVisualize][0], vertexList[parVisualize][1], vertexList[parVisualize][2],
+				vertexList[nx][0], vertexList[nx][1], vertexList[nx][2], 0.1);
+		}
+	}
+	if (parVisualize != -1 && chiVisualize != -1) {
+		// same thing here
+		glColor3f(0.784, 0.12, 0.232);
+		drawArrow(vertexList[parVisualize][0], vertexList[parVisualize][1], vertexList[parVisualize][2],
+			vertexList[chiVisualize][0], vertexList[chiVisualize][1], vertexList[chiVisualize][2], 0.1);	
+	}
 	glFlush();
 	update();
 }
@@ -812,7 +1053,6 @@ void glArea::wheelEvent(QWheelEvent * event)
 	}
 }
 
-
 COLOR GetColor(double v, double vmin, double vmax) //code from stack overflow
 {
 	COLOR c = { 1.0,1.0,1.0 }; // white
@@ -842,4 +1082,20 @@ COLOR GetColor(double v, double vmin, double vmax) //code from stack overflow
 	}
 
 	return(c);
+}
+
+//ofstream prop("propagate.txt");
+void propagate(vector<vector<int>>& adj, 
+	vector<int>& level, int& hierarchyCap, 
+	int vertex, int pv, int paridx, int diff)
+{
+	for (const auto &nx : adj[vertex])
+	{
+		if (nx != pv && nx != paridx)
+		{
+			level[nx] += diff;
+			propagate(adj, level, hierarchyCap, nx, 
+				vertex, paridx, diff);
+		}
+	}
 }

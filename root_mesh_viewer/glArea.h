@@ -4,8 +4,10 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QWheelEvent>
-#include <GL/glut.h>
+//#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <iostream>
+#include <set>
 using namespace std;
 
 typedef struct {
@@ -63,11 +65,23 @@ public:
 	double back_colorR;
 	double back_colorG;
 	double back_colorB;
+
+	bool editOn;
+	int par;
+
 	myMesh *mesh;
 	Whorls whorls;
 	vector<vector<int>> nodalRoots;
 	vector<vector<double long>> vertexList;
 	vector<vector<int>> edgeList;
+	
+	vector<vector<int>> adjVertex;
+	std::set<int> junctions;
+	vector<int> IDs;
+
+	vector<vector<int>> juncAdj;
+	map<int, std::vector<int> > childVertex;
+
 	vector<double long> radius;
 	vector<int> level;
 	void adjustView();
@@ -79,6 +93,8 @@ public:
 	vector<vector<float>> n = { {},{},{} }; //PCA axes
 	int annotation_activated = 0;
 	int hierarchyCap = 5;
+
+	int parVisualize = -1, chiVisualize = -1, fchiVisualize = -1;
 
 protected:
 	void initializeGL();
@@ -96,6 +112,13 @@ protected:
 	void draw_rootsAbove();
 	void draw_rootsBelow();
 	void draw_plane();
+
+	void draw_labels();
+	void label_junction(int idx, float h);
+	void drawArrow(GLdouble x1, GLdouble y1, GLdouble z1, GLdouble x2, GLdouble y2, GLdouble z2, GLdouble D);
+
+	void highlight_junction(int idx);
+
 private:
 	int skeleton_size;
 	bool isRotate;
@@ -121,7 +144,13 @@ myMesh * ReaderOBj(string fname2);
 myMesh * ReadOffFile(const char *filename);
 vector<string> split(const string &str, const string &pattern);
 void get_normal(Face& face);
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius);
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int>& junctions, vector<int> & IDs, map<int, std::vector<int> > &childVertex, std::vector<vector<int> > &juncAdj);
 int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n);
+
 //jetcolor:
 COLOR GetColor(double v, double vmin, double vmax);
+
+void propagate(vector<vector<int>>& adj, vector<int> &level, int &hierarchyCap, int v, int pv, int paridx, int diff);
+void dfsid(int at, int par, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs);
+
+void directedDFS(int at, int par, int ppjunc, const std::set<int> &junctions, const vector<vector<int>> &adj, const vector<int> &level, map<int, std::vector<int> > &childVertex, std::vector<vector<int>> &juncAdj);
