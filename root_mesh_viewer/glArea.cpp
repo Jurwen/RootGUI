@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <assert.h>
+#include <algorithm>
 #define SCALE_FACTOR 0.005f
 GLfloat LightAmbient[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 GLfloat LightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -531,6 +532,73 @@ glArea::~glArea()
 {
 }
 
+// for sorting junctions considered in all whorls, top to bottom
+void glArea::sort_whorls() {
+	whorls_inord.clear();
+	set<int> w;
+	for (const auto &v : whorls.whorlAbove) {
+		for (const auto &wh : v)
+			w.insert(wh);
+	}
+	for (const auto &v : whorls.whorlBelow) {
+		for (const auto &wh : v)
+			w.insert(wh);
+	}
+
+	int st = -1;
+	for (int i = 0; i < level.size(); i++) {
+		if (level[i] == 0) {
+			st = i;
+			break;
+		}
+	}
+
+	if (st == -1) return;
+	// search down line for endpoint
+	int cnt = 0, par = -1;
+	for (const auto &a : adjVertex[st]) {
+		if (level[a] == 0) {
+			par = a;
+			++cnt;
+		}
+	}
+	if (cnt > 1) {
+		while (cnt >= 1) {
+			cnt = 0;
+			for (const auto &a : adjVertex[st]) {
+				if (level[a] == 0 && par != a) {
+					++cnt;
+					par = st;
+					st = a;
+					break;
+				}
+			}
+		}
+	}
+
+	// search for junctions on whorls
+	par = -1;
+	while (st != -1) {
+		if (w.count(st)) {
+			w.erase(st);
+			whorls_inord.push_back(st);
+		}
+
+		int nx = -1;
+		for (const auto &a : adjVertex[st]) {
+			if (level[a] == 0 && par != a) {
+				par = st;
+				nx = a;
+				break;
+			}
+		}
+		st = nx;
+	}
+
+	if (vertexList[whorls_inord[0]][2] < vertexList[whorls_inord.back()][2]) reverse(whorls_inord.begin(), whorls_inord.end());
+	return;
+}
+
 void glArea::draw_rootsAbove() {
 	glColor4f(1.0, 0.0, 0.0, 1.0);
 	glPointSize(3.0);
@@ -618,6 +686,7 @@ void glArea::draw_whorlsBelow() {
 	glBegin(GL_POINTS);
 	vector<vector<vector<float>>> whorlBbox; //whorl bounding box: 
 	for (int i = 0; i < whorls.whorlBelow.size(); i++) {
+		if (whorls.whorlBelow[i][0] == -1) continue;
 		vector<vector<float>> oneBBox = { {},{},{} };
 		for (int j = 0; j < whorls.whorlBelow[i].size(); j++) {
 			int vertexNum = whorls.whorlBelow[i][j];
@@ -626,8 +695,21 @@ void glArea::draw_whorlsBelow() {
 			oneBBox[2].push_back(vertexList[vertexNum][2]);
 			glVertex3f(vertexList[vertexNum][0], vertexList[vertexNum][1], vertexList[vertexNum][2]);
 		}
+		
 		whorlBbox.push_back({ { *min_element(oneBBox[0].begin(),oneBBox[0].end()) - 3,*min_element(oneBBox[1].begin(),oneBBox[1].end()) - 3,*min_element(oneBBox[2].begin(),oneBBox[2].end()) - 3 },
 			{*max_element(oneBBox[0].begin(),oneBBox[0].end()) + 3,*max_element(oneBBox[1].begin(),oneBBox[1].end()) + 3,*max_element(oneBBox[2].begin(),oneBBox[2].end()) + 3} });
+		if (editWhorlOn) {
+			glPushMatrix();
+			glTranslatef(whorlBbox[i][0][0], whorlBbox[i][0][1], whorlBbox[i][0][2]);
+			glScalef(1 / 152.38, 1 / 152.38, 1 / 200.38);
+			glRotatef(270.0, 1.0, 0.0, 0.0);
+
+			glFlush();
+			glutStrokeCharacter(GLUT_STROKE_ROMAN, i + 'A');
+			glFlush();
+
+			glPopMatrix();
+		}
 	}
 	glEnd();
 	glBegin(GL_LINES);
@@ -785,7 +867,6 @@ void glArea::highlight_junction(int idx) {
 	glPopMatrix();
 }
 
-// CHECK HERE FOR JUNCTION POINT COLORING ERRORS
 void glArea::draw_lines() {
 	// ofstream fout("draw_lines.txt");
 	// fout << "Drawing lines..." << endl;
@@ -842,39 +923,27 @@ void glArea::draw_lines() {
 }
 
 // from stackoverflow
-// simply believe
 void glArea::label_junction(int idx, float h) {
-	//float scale = h / (119.05f + 33.33f);
 	float xo = vertexList[idx][0]; // x coord
 	float yo = vertexList[idx][1]; // y coord
 	float zo = vertexList[idx][2]; // z coord
 	// float xo = center[0], yo = center[1], zo = center[2];
-	//fout << "set coords " << xo << " " << yo << " " << zo << "\n";
 
 	glPushMatrix();
-	//fout << "Pushed matrix\n";
 	glTranslatef(xo, yo, zo);
 	glScalef(1 / 152.38, 1 / 152.38, 1 / 200.38);
 	glRotatef(270.0, 1.0, 0.0, 0.0); // find right one
 
-	//fout << "translated and scaled\n";
 	auto curr = reinterpret_cast<const unsigned char*>(to_string(idx).c_str());
-	//fout << "Cast\n";
 
-	// const unsigned char* c = reinterpret_cast<const unsigned char*>('a');
-	// fout << c << "\n";
-	// why crash
 	glFlush();
-	//int c = 'a';
-	//fout << glutStrokeWidth(GLUT_STROKE_ROMAN, c) << "\n";
-	//glutStrokeCharacter(GLUT_STROKE_ROMAN, 'A');
 	glutStrokeString(GLUT_STROKE_ROMAN, (const unsigned char*)to_string(idx).c_str());
 	glFlush();
 
-	//fout << "stroked\n";
 	glPopMatrix();
-	//fout << "done\n";
 }
+
+
 
 // from stackOverflow
 void glArea::draw_labels() {
@@ -1051,6 +1120,12 @@ void glArea::wheelEvent(QWheelEvent * event)
 		if (scale < SCALE_FACTOR * 30.0f)
 			scale += SCALE_FACTOR;
 	}
+}
+
+void glArea::deleteWhorl(char c) {
+	int idx = c - 'A';
+	whorls.whorlBelow[idx].clear();
+	whorls.whorlBelow[idx].push_back(-1);
 }
 
 COLOR GetColor(double v, double vmin, double vmax) //code from stack overflow

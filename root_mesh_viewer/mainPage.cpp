@@ -50,6 +50,8 @@ mainPage::mainPage(QWidget *parent)
 	QObject::connect(ui->inputValuePar, SIGNAL(clicked()), this, SLOT(visualizeParent()));
 	QObject::connect(ui->inputValueChi, SIGNAL(clicked()), this, SLOT(visualizeChild()));
 	QObject::connect(ui->swapLast, SIGNAL(clicked()), this, SLOT(swapLastT()));
+	
+	QObject:connect(ui->editWhorlOn, SIGNAL(stateChanged(int)), this, SLOT(editWhorlChange(int)));
 }
 
 mainPage::~mainPage()
@@ -236,6 +238,7 @@ void mainPage::browseAnnotationClicked()
 		ui->nodalRootBelow->setChecked(false);
 		ui->showPlane->setChecked(false);
 		area->annotation_activated = 2;
+		area->sort_whorls();
 		cout << "Successfully initiated annotation data... " << endl;
 	}
 	else {
@@ -449,4 +452,12 @@ void mainPage::swapLastT() {
 		}
 	}
 	else ui->statusBar->showMessage("not enough indices");
+}
+
+void mainPage::editWhorlChange(int _s) {
+	if (_s == Qt::Checked) {
+		area->editWhorlOn = 1;
+		//area->ind.clear();
+	}
+	else area->editWhorlOn = 0;
 }

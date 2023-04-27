@@ -67,6 +67,7 @@ public:
 	double back_colorB;
 
 	bool editOn;
+	bool editWhorlOn;
 	int par;
 
 	myMesh *mesh;
@@ -82,6 +83,8 @@ public:
 	vector<vector<int>> juncAdj;
 	map<int, std::vector<int> > childVertex;
 
+	vector<int> whorls_inord;
+
 	vector<double long> radius;
 	vector<int> level;
 	void adjustView();
@@ -95,6 +98,8 @@ public:
 	int hierarchyCap = 5;
 
 	int parVisualize = -1, chiVisualize = -1, fchiVisualize = -1;
+
+	void sort_whorls();
 
 protected:
 	void initializeGL();
@@ -118,6 +123,7 @@ protected:
 	void drawArrow(GLdouble x1, GLdouble y1, GLdouble z1, GLdouble x2, GLdouble y2, GLdouble z2, GLdouble D);
 
 	void highlight_junction(int idx);
+	void deleteWhorl(char c);
 
 private:
 	int skeleton_size;

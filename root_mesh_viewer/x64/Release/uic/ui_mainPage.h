@@ -67,6 +67,7 @@ public:
     QPushButton *swapLast;
     QTextEdit *inputTextChi;
     QPushButton *inputValuePar;
+    QCheckBox *editWhorlOn;
     QWidget *meshTab;
     QCheckBox *showMesh;
     QSlider *alphaSlider;
@@ -96,7 +97,7 @@ public:
     {
         if (mainPageClass->objectName().isEmpty())
             mainPageClass->setObjectName(QStringLiteral("mainPageClass"));
-        mainPageClass->resize(809, 709);
+        mainPageClass->resize(952, 860);
         centralWidget = new QWidget(mainPageClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setMaximumSize(QSize(16777215, 16777215));
@@ -235,6 +236,9 @@ public:
         inputValuePar = new QPushButton(skeletonTab);
         inputValuePar->setObjectName(QStringLiteral("inputValuePar"));
         inputValuePar->setGeometry(QRect(70, 580, 31, 28));
+        editWhorlOn = new QCheckBox(skeletonTab);
+        editWhorlOn->setObjectName(QStringLiteral("editWhorlOn"));
+        editWhorlOn->setGeometry(QRect(10, 620, 91, 20));
         tabWidget->addTab(skeletonTab, QString());
         meshTab = new QWidget();
         meshTab->setObjectName(QStringLiteral("meshTab"));
@@ -371,6 +375,7 @@ public:
         inputValueChi->setText(QApplication::translate("mainPageClass", "Go", nullptr));
         swapLast->setText(QApplication::translate("mainPageClass", "Swap", nullptr));
         inputValuePar->setText(QApplication::translate("mainPageClass", "Go", nullptr));
+        editWhorlOn->setText(QApplication::translate("mainPageClass", "Edit Whorl", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(skeletonTab), QApplication::translate("mainPageClass", "Skeleton", nullptr));
         showMesh->setText(QApplication::translate("mainPageClass", "Show Mesh", nullptr));
         label->setText(QApplication::translate("mainPageClass", "Transparency", nullptr));

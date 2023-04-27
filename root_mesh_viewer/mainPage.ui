@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>809</width>
-    <height>709</height>
+    <width>952</width>
+    <height>860</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -465,6 +465,19 @@
           </property>
           <property name="text">
            <string>Go</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="editWhorlOn">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>620</y>
+            <width>91</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Edit Whorl</string>
           </property>
          </widget>
         </widget>

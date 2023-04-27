@@ -48,6 +48,8 @@ public slots:
 	void visualizeParent();
 	void visualizeChild();
 	void swapLastT();
+
+	void editWhorlChange(int _s);
 private:
     Ui::mainPageClass *ui;
 	glArea *area;
