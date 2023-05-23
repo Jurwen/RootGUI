@@ -51,7 +51,12 @@ mainPage::mainPage(QWidget *parent)
 	QObject::connect(ui->inputValueChi, SIGNAL(clicked()), this, SLOT(visualizeChild()));
 	QObject::connect(ui->swapLast, SIGNAL(clicked()), this, SLOT(swapLastT()));
 	
-	QObject:connect(ui->editWhorlOn, SIGNAL(stateChanged(int)), this, SLOT(editWhorlChange(int)));
+	QObject::connect(ui->deleteWhorlConf, SIGNAL(clicked()), this, SLOT(delWhorl()));
+	QObject::connect(ui->editWhorlOn, SIGNAL(stateChanged(int)), this, SLOT(editWhorlChange(int)));
+
+	QObject::connect(ui->addWhorl, SIGNAL(clicked()), this, SLOT(addWhorl()));
+	QObject::connect(ui->verifyTop, SIGNAL(clicked()), this, SLOT(verifyTop()));
+	QObject::connect(ui->verifyBot, SIGNAL(clicked()), this, SLOT(verifyBot()));
 }
 
 mainPage::~mainPage()
@@ -226,7 +231,7 @@ void mainPage::browseAnnotationClicked()
 		NULL/*, QFileDialog::DontUseNativeDialog*/);
 	ui->annotationFileLabel->setText(annotation_file);
 	QByteArray annotation_byteArray = annotation_file.toLatin1();
-	if (readAnnotation(area->whorls, area->nodalRoots, annotation_byteArray.data(), area->cent, area->n) == 1 && area->annotation_activated == 1) {
+	if (readAnnotation(area->whorls, area->nodalRoots, annotation_byteArray.data(), area->cent, area->n, area->juncWhorlAbove, area->juncWhorlBelow, area->whorls_inord) == 1 && area->annotation_activated == 1) {
 		area->if_drawWhorlAbove = false;
 		area->if_drawWhorlBelow = false;
 		area->if_drawNodeAbove = false;
@@ -460,4 +465,71 @@ void mainPage::editWhorlChange(int _s) {
 		//area->ind.clear();
 	}
 	else area->editWhorlOn = 0;
+}
+
+void mainPage::delWhorl() {
+	if (area->editWhorlOn) {
+		QString qs = ui->whorlDelete->toPlainText();
+		char cind = qs.at(0).toLatin1();
+
+		if (area->deleteWhorl(cind)) {
+			ui->statusBar->showMessage("deleted whorl " + qs);
+		}
+		else {
+			ui->statusBar->showMessage("whorl" + qs + " out of range, please try again");
+		}
+	}
+}
+
+void mainPage::addWhorl() {
+	bool flag1, flag2;
+	QString qs = ui->inputTextTop->toPlainText();
+	int cind = qs.toInt(&flag1);
+	qs = ui->inputTextBot->toPlainText();
+	int cind2 = qs.toInt(&flag2);
+
+	if (flag1 && flag2) {
+		if (area->juncWhorlAbove.count(cind) && area->juncWhorlAbove.count(cind2)) {
+			if (area->addNewBox(cind, cind2, 1)) {
+				ui->statusBar->showMessage("successfully added whorl to above");
+				area->topWh = -1, area->botWh = -1;
+			}
+			else ui->statusBar->showMessage("whorl addition failed, please try again");
+		}
+		else if (area->juncWhorlBelow.count(cind) && area->juncWhorlBelow.count(cind2)) {
+			if (area->addNewBox(cind, cind2, 0)) {
+				ui->statusBar->showMessage("successfully added whorl to below");
+				area->topWh = -1, area->botWh = -1;
+			}
+			else ui->statusBar->showMessage("whorl addition failed, please try again");
+		} else ui->statusBar->showMessage("invalid junctions, please try again");
+	}
+}
+
+void mainPage::verifyTop() {
+	if (area->editWhorlOn) {
+		bool flag;
+		QString qs = ui->inputTextTop->toPlainText();
+		int cind = qs.toInt(&flag);
+
+		if (flag) {
+			ui->statusBar->showMessage("selected junction " + qs);
+			area->topWh = cind;
+			//area->ind.push_back(cind);
+		}
+	}
+}
+
+void mainPage::verifyBot() {
+	if (area->editWhorlOn) {
+		bool flag;
+		QString qs = ui->inputTextBot->toPlainText();
+		int cind = qs.toInt(&flag);
+
+		if (flag) {
+			ui->statusBar->showMessage("selected junction " + qs);
+			area->botWh = cind;
+			//area->ind.push_back(cind);
+		}
+	}
 }
