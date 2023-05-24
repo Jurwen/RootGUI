@@ -67,6 +67,7 @@ public:
 	double back_colorB;
 
 	bool editOn;
+	bool editWhorlOn;
 	int par;
 
 	myMesh *mesh;
@@ -82,6 +83,9 @@ public:
 	vector<vector<int>> juncAdj;
 	map<int, std::vector<int> > childVertex;
 
+	vector<int> whorls_inord;
+	map<int, int> juncWhorlAbove, juncWhorlBelow;
+
 	vector<double long> radius;
 	vector<int> level;
 	void adjustView();
@@ -95,6 +99,11 @@ public:
 	int hierarchyCap = 5;
 
 	int parVisualize = -1, chiVisualize = -1, fchiVisualize = -1;
+	int topWh = -1, botWh = -1;
+
+	void sort_whorls();
+	bool deleteWhorl(char c);
+	bool addNewBox(int topJunc, int botJunc, bool above);
 
 protected:
 	void initializeGL();
@@ -118,7 +127,6 @@ protected:
 	void drawArrow(GLdouble x1, GLdouble y1, GLdouble z1, GLdouble x2, GLdouble y2, GLdouble z2, GLdouble D);
 
 	void highlight_junction(int idx);
-
 private:
 	int skeleton_size;
 	bool isRotate;
@@ -145,7 +153,7 @@ myMesh * ReadOffFile(const char *filename);
 vector<string> split(const string &str, const string &pattern);
 void get_normal(Face& face);
 int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int>& junctions, vector<int> & IDs, map<int, std::vector<int> > &childVertex, std::vector<vector<int> > &juncAdj);
-int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n);
+int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n, map<int, int>& juncWhorlAbove, map<int, int>& juncWhorlBelow, vector<int> &inord);
 
 //jetcolor:
 COLOR GetColor(double v, double vmin, double vmax);

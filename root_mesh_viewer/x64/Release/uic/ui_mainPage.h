@@ -67,6 +67,14 @@ public:
     QPushButton *swapLast;
     QTextEdit *inputTextChi;
     QPushButton *inputValuePar;
+    QCheckBox *editWhorlOn;
+    QTextEdit *whorlDelete;
+    QPushButton *deleteWhorlConf;
+    QTextEdit *inputTextTop;
+    QPushButton *verifyTop;
+    QTextEdit *inputTextBot;
+    QPushButton *verifyBot;
+    QPushButton *addWhorl;
     QWidget *meshTab;
     QCheckBox *showMesh;
     QSlider *alphaSlider;
@@ -96,7 +104,7 @@ public:
     {
         if (mainPageClass->objectName().isEmpty())
             mainPageClass->setObjectName(QStringLiteral("mainPageClass"));
-        mainPageClass->resize(809, 709);
+        mainPageClass->resize(952, 860);
         centralWidget = new QWidget(mainPageClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setMaximumSize(QSize(16777215, 16777215));
@@ -235,6 +243,30 @@ public:
         inputValuePar = new QPushButton(skeletonTab);
         inputValuePar->setObjectName(QStringLiteral("inputValuePar"));
         inputValuePar->setGeometry(QRect(70, 580, 31, 28));
+        editWhorlOn = new QCheckBox(skeletonTab);
+        editWhorlOn->setObjectName(QStringLiteral("editWhorlOn"));
+        editWhorlOn->setGeometry(QRect(10, 620, 91, 20));
+        whorlDelete = new QTextEdit(skeletonTab);
+        whorlDelete->setObjectName(QStringLiteral("whorlDelete"));
+        whorlDelete->setGeometry(QRect(10, 640, 104, 30));
+        deleteWhorlConf = new QPushButton(skeletonTab);
+        deleteWhorlConf->setObjectName(QStringLiteral("deleteWhorlConf"));
+        deleteWhorlConf->setGeometry(QRect(120, 640, 60, 28));
+        inputTextTop = new QTextEdit(skeletonTab);
+        inputTextTop->setObjectName(QStringLiteral("inputTextTop"));
+        inputTextTop->setGeometry(QRect(10, 680, 60, 31));
+        verifyTop = new QPushButton(skeletonTab);
+        verifyTop->setObjectName(QStringLiteral("verifyTop"));
+        verifyTop->setGeometry(QRect(70, 680, 31, 28));
+        inputTextBot = new QTextEdit(skeletonTab);
+        inputTextBot->setObjectName(QStringLiteral("inputTextBot"));
+        inputTextBot->setGeometry(QRect(100, 680, 60, 31));
+        verifyBot = new QPushButton(skeletonTab);
+        verifyBot->setObjectName(QStringLiteral("verifyBot"));
+        verifyBot->setGeometry(QRect(160, 680, 31, 28));
+        addWhorl = new QPushButton(skeletonTab);
+        addWhorl->setObjectName(QStringLiteral("addWhorl"));
+        addWhorl->setGeometry(QRect(10, 720, 180, 21));
         tabWidget->addTab(skeletonTab, QString());
         meshTab = new QWidget();
         meshTab->setObjectName(QStringLiteral("meshTab"));
@@ -371,6 +403,11 @@ public:
         inputValueChi->setText(QApplication::translate("mainPageClass", "Go", nullptr));
         swapLast->setText(QApplication::translate("mainPageClass", "Swap", nullptr));
         inputValuePar->setText(QApplication::translate("mainPageClass", "Go", nullptr));
+        editWhorlOn->setText(QApplication::translate("mainPageClass", "Edit Whorl", nullptr));
+        deleteWhorlConf->setText(QApplication::translate("mainPageClass", "Delete", nullptr));
+        verifyTop->setText(QApplication::translate("mainPageClass", "Go", nullptr));
+        verifyBot->setText(QApplication::translate("mainPageClass", "Go", nullptr));
+        addWhorl->setText(QApplication::translate("mainPageClass", "Add Whorl", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(skeletonTab), QApplication::translate("mainPageClass", "Skeleton", nullptr));
         showMesh->setText(QApplication::translate("mainPageClass", "Show Mesh", nullptr));
         label->setText(QApplication::translate("mainPageClass", "Transparency", nullptr));

@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <assert.h>
+#include <algorithm>
 #define SCALE_FACTOR 0.005f
 GLfloat LightAmbient[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 GLfloat LightDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -263,13 +264,16 @@ myMesh * ReaderOBj(string fname2) {
 	return meshs;
 }
 
-int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n) {
+int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n, map<int, int>& juncWhorlAbove, map<int, int>& juncWhorlBelow, vector<int> &inord) {
 
 	ifstream myFile;
 	myFile.open(fileName);
 	if (myFile.is_open()) { // a checker to see if the file is opened properly.
 		whorls.whorlAbove.clear();
 		whorls.whorlBelow.clear();
+		inord.clear();
+		juncWhorlAbove.clear();
+		juncWhorlBelow.clear();
 		nodes = { {},{} };
 		center = {};
 		n = { {},{},{} };
@@ -357,6 +361,7 @@ int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileN
 						cout << whorlNum << " - above the soil: " << endl;
 						for (int i = 0; i < totalWhorls[whorlNum].size(); i++) {
 							cout << whorls.whorlAbove[whorlNum][i] << endl;
+							juncWhorlAbove[whorls.whorlAbove[whorlNum][i]] = whorlNum;
 						}
 					}
 					else {
@@ -364,6 +369,7 @@ int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileN
 						cout << whorlNum << " - below the soil: " << endl;
 						for (int i = 0; i < totalWhorls[whorlNum].size(); i++) {
 							cout << whorls.whorlBelow[whorlNum][i] << endl;
+							juncWhorlBelow[whorls.whorlAbove[whorlNum][i]] = whorlNum;
 						}
 					}
 				}
@@ -501,7 +507,7 @@ glArea::glArea(QWidget *parent) :QOpenGLWidget(parent) {
 	mesh = ReadOffFile("2020_PlantHaven_RT_591-4_2021-rewash_109um.off");
 	/*mesh = ReaderOBj("smooth.obj");*/
 	cout << "Sucessfully initiated mesh data..." << endl;
-	if (readAnnotation(whorls, nodalRoots, "591-4-topo-with-plane-annotations.txt", cent, n) == 1) {
+	if (readAnnotation(whorls, nodalRoots, "591-4-topo-with-plane-annotations.txt", cent, n, juncWhorlAbove, juncWhorlBelow, whorls_inord) == 1) {
 		cout << "Successfully initiated annotation data..." << endl;
 	}
 	isRotate = false;
@@ -529,6 +535,103 @@ glArea::glArea(QWidget *parent) :QOpenGLWidget(parent) {
 
 glArea::~glArea()
 {
+}
+
+// for sorting junctions considered in all whorls, top to bottom
+void glArea::sort_whorls() {
+	whorls_inord.clear();
+	set<int> w;
+	for (const auto &v : whorls.whorlAbove) {
+		for (const auto &wh : v)
+			w.insert(wh);
+	}
+	for (const auto &v : whorls.whorlBelow) {
+		for (const auto &wh : v)
+			w.insert(wh);
+	}
+
+	int st = -1;
+	for (int i = 0; i < level.size(); i++) {
+		if (level[i] == 0) {
+			st = i;
+			break;
+		}
+	}
+
+	if (st == -1) return;
+	// search down line for endpoint
+	int cnt = 0, par = -1;
+	for (const auto &a : adjVertex[st]) {
+		if (level[a] == 0) {
+			par = a;
+			++cnt;
+		}
+	}
+	if (cnt > 1) {
+		while (cnt >= 1) {
+			cnt = 0;
+			for (const auto &a : adjVertex[st]) {
+				if (level[a] == 0 && par != a) {
+					++cnt;
+					par = st;
+					st = a;
+					break;
+				}
+			}
+		}
+	}
+
+	// search for junctions on whorls
+	par = -1;
+	while (st != -1) {
+		if (w.count(st)) {
+			w.erase(st);
+			whorls_inord.push_back(st);
+		}
+
+		int nx = -1;
+		for (const auto &a : adjVertex[st]) {
+			if (level[a] == 0 && par != a) {
+				par = st;
+				nx = a;
+				break;
+			}
+		}
+		st = nx;
+	}
+
+	if (vertexList[whorls_inord[0]][2] < vertexList[whorls_inord.back()][2]) reverse(whorls_inord.begin(), whorls_inord.end());
+	return;
+}
+
+bool glArea::deleteWhorl(char c) {
+	if (c >= 'a') { // whorl above
+		int idx = c - 'a';
+		if (idx >= whorls.whorlAbove.size()) return 0;
+		for (int i = 0; i < whorls.whorlAbove[idx].size(); i++)
+		{
+			juncWhorlAbove[whorls.whorlAbove[idx][i]] = -1;
+		}
+		whorls.whorlAbove.erase(whorls.whorlAbove.begin() + idx);
+		for (int i = idx; i < whorls.whorlAbove.size(); i++) {
+			for(const auto &v : whorls.whorlAbove[i])
+				juncWhorlAbove[v]--;
+		}
+	}
+	else { // whorl below
+		int idx = c - 'A';
+		if (idx >= whorls.whorlBelow.size()) return 0;
+		for (int i = 0; i < whorls.whorlBelow[idx].size(); i++)
+		{
+			juncWhorlBelow[whorls.whorlBelow[idx][i]] = -1;
+		}
+		whorls.whorlBelow.erase(whorls.whorlBelow.begin() + idx);
+		for (int i = idx; i < whorls.whorlBelow.size(); i++) {
+			for (const auto &v : whorls.whorlBelow[i])
+				juncWhorlAbove[v]--;
+		}
+	}
+	return 1;
 }
 
 void glArea::draw_rootsAbove() {
@@ -610,6 +713,37 @@ void glArea::draw_whorlsAbove() {
 		//middle edges
 	}
 	glEnd();
+
+	if (editWhorlOn) {
+		for (int i = 0; i < whorlBbox.size(); i++) {
+			glPushMatrix();
+			glColor3f(0.0, 0.0, 0.0);
+			glTranslatef(whorlBbox[i][0][0], whorlBbox[i][0][1], whorlBbox[i][0][2]);
+			glScalef(1 / 20.38, 1 / 20.38, 1 / 26.81);
+			glRotatef(270.0, 1.0, 0.0, 0.0); // find right one
+
+			glFlush();
+			glutStrokeCharacter(GLUT_STROKE_ROMAN, 'a' + i);
+			glFlush();
+
+			glPopMatrix();
+		}
+		for (const auto &v : juncWhorlAbove) {
+			if (v.second == -1) {
+				glPushMatrix();
+
+				glTranslatef(vertexList[v.first][0], vertexList[v.first][1], vertexList[v.first][2]);
+				glScalef(1 / 152.38, 1 / 152.38, 1 / 200.38);
+				glRotatef(270.0, 1.0, 0.0, 0.0); // find right one
+
+				glFlush();
+				glutStrokeString(GLUT_STROKE_ROMAN, (const unsigned char*)to_string(v.first).c_str());
+				glFlush();
+
+				glPopMatrix();
+			}
+		}
+	}
 }
 
 void glArea::draw_whorlsBelow() {
@@ -618,6 +752,7 @@ void glArea::draw_whorlsBelow() {
 	glBegin(GL_POINTS);
 	vector<vector<vector<float>>> whorlBbox; //whorl bounding box: 
 	for (int i = 0; i < whorls.whorlBelow.size(); i++) {
+		if (whorls.whorlBelow[i][0] == -1) continue;
 		vector<vector<float>> oneBBox = { {},{},{} };
 		for (int j = 0; j < whorls.whorlBelow[i].size(); j++) {
 			int vertexNum = whorls.whorlBelow[i][j];
@@ -626,6 +761,7 @@ void glArea::draw_whorlsBelow() {
 			oneBBox[2].push_back(vertexList[vertexNum][2]);
 			glVertex3f(vertexList[vertexNum][0], vertexList[vertexNum][1], vertexList[vertexNum][2]);
 		}
+		
 		whorlBbox.push_back({ { *min_element(oneBBox[0].begin(),oneBBox[0].end()) - 3,*min_element(oneBBox[1].begin(),oneBBox[1].end()) - 3,*min_element(oneBBox[2].begin(),oneBBox[2].end()) - 3 },
 			{*max_element(oneBBox[0].begin(),oneBBox[0].end()) + 3,*max_element(oneBBox[1].begin(),oneBBox[1].end()) + 3,*max_element(oneBBox[2].begin(),oneBBox[2].end()) + 3} });
 	}
@@ -661,6 +797,84 @@ void glArea::draw_whorlsBelow() {
 		//middle edges
 	}
 	glEnd();
+
+	if (editWhorlOn) {
+		for (int i = 0; i < whorlBbox.size(); i++) {
+			glPushMatrix();
+			glColor3f(0.0, 0.0, 0.0);
+			glTranslatef(whorlBbox[i][0][0], whorlBbox[i][0][1], whorlBbox[i][0][2]);
+			glScalef(1 / 20.38, 1 / 20.38, 1 / 26.81);
+			glRotatef(270.0, 1.0, 0.0, 0.0); // find right one
+
+			glFlush();
+			glutStrokeCharacter(GLUT_STROKE_ROMAN, 'A' + i);
+			glFlush();
+
+			glPopMatrix();
+		}
+		for (const auto &v : juncWhorlBelow) {
+			if (v.second == -1) {
+				glPushMatrix();
+				glTranslatef(vertexList[v.first][0], vertexList[v.first][1], vertexList[v.first][2]);
+				glScalef(1 / 152.38, 1 / 152.38, 1 / 200.38);
+				glRotatef(270.0, 1.0, 0.0, 0.0); // find right one
+
+				glFlush();
+				glutStrokeString(GLUT_STROKE_ROMAN, (const unsigned char*)to_string(v.first).c_str());
+				glFlush();
+
+				glPopMatrix();
+			}
+		}
+	}
+}
+
+bool glArea::addNewBox(int topJunc, int botJunc, bool above) {
+	if (above) {
+		bool marking = 0;
+		for (int i = 0; i < whorls_inord.size(); i++) {
+			if (!marking && (whorls_inord[i] == topJunc || whorls_inord[i] == botJunc)) {
+				marking = 1;
+			}
+			else if (marking && whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) marking = 0;
+			if (marking || whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) 
+				if(juncWhorlAbove[whorls_inord[i]] != -1) return 0;
+		}
+
+		marking = 0;
+		vector<int> someWhorl;
+		for (int i = 0; i < whorls_inord.size(); i++) {
+			if (!marking && (whorls_inord[i] == topJunc || whorls_inord[i] == botJunc)) {
+				marking = 1;
+			}			
+			else if (marking && whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) marking = 0;
+			if (marking || whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) someWhorl.push_back(whorls_inord[i]), juncWhorlAbove[whorls_inord[i]] = whorls.whorlAbove.size();
+		}
+		whorls.whorlAbove.push_back(someWhorl);
+	}
+	else {
+		bool marking = 0;
+		for (int i = 0; i < whorls_inord.size(); i++) {
+			if (!marking && (whorls_inord[i] == topJunc || whorls_inord[i] == botJunc)) {
+				marking = 1;
+			}
+			else if (marking && whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) marking = 0;
+			if (marking || whorls_inord[i] == topJunc || whorls_inord[i] == botJunc)
+				if (juncWhorlBelow[whorls_inord[i]] != -1) return 0;
+		}
+
+		vector<int> someWhorl;
+		for (int i = 0; i < whorls_inord.size(); i++) {
+			if (!marking && (whorls_inord[i] == topJunc || whorls_inord[i] == botJunc)) {
+				marking = 1;
+			}
+			else if (marking && whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) marking = 0;
+			if (marking || whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) someWhorl.push_back(whorls_inord[i]), juncWhorlBelow[whorls_inord[i]] = whorls.whorlBelow.size();
+		}
+		whorls.whorlBelow.push_back(someWhorl);
+	}
+
+	return 1;
 }
 
 void glArea::draw_faces() {
@@ -785,7 +999,6 @@ void glArea::highlight_junction(int idx) {
 	glPopMatrix();
 }
 
-// CHECK HERE FOR JUNCTION POINT COLORING ERRORS
 void glArea::draw_lines() {
 	// ofstream fout("draw_lines.txt");
 	// fout << "Drawing lines..." << endl;
@@ -842,38 +1055,24 @@ void glArea::draw_lines() {
 }
 
 // from stackoverflow
-// simply believe
 void glArea::label_junction(int idx, float h) {
-	//float scale = h / (119.05f + 33.33f);
 	float xo = vertexList[idx][0]; // x coord
 	float yo = vertexList[idx][1]; // y coord
 	float zo = vertexList[idx][2]; // z coord
 	// float xo = center[0], yo = center[1], zo = center[2];
-	//fout << "set coords " << xo << " " << yo << " " << zo << "\n";
 
 	glPushMatrix();
-	//fout << "Pushed matrix\n";
 	glTranslatef(xo, yo, zo);
 	glScalef(1 / 152.38, 1 / 152.38, 1 / 200.38);
 	glRotatef(270.0, 1.0, 0.0, 0.0); // find right one
 
-	//fout << "translated and scaled\n";
 	auto curr = reinterpret_cast<const unsigned char*>(to_string(idx).c_str());
-	//fout << "Cast\n";
 
-	// const unsigned char* c = reinterpret_cast<const unsigned char*>('a');
-	// fout << c << "\n";
-	// why crash
 	glFlush();
-	//int c = 'a';
-	//fout << glutStrokeWidth(GLUT_STROKE_ROMAN, c) << "\n";
-	//glutStrokeCharacter(GLUT_STROKE_ROMAN, 'A');
 	glutStrokeString(GLUT_STROKE_ROMAN, (const unsigned char*)to_string(idx).c_str());
 	glFlush();
 
-	//fout << "stroked\n";
 	glPopMatrix();
-	//fout << "done\n";
 }
 
 // from stackOverflow
@@ -990,6 +1189,9 @@ void glArea::paintGL()
 	if (parVisualize != -1) { highlight_junction(parVisualize); }
 	if (chiVisualize != -1) { highlight_junction(chiVisualize); }
 	if (fchiVisualize != -1) { highlight_junction(fchiVisualize); }
+	if (topWh != -1) { highlight_junction(topWh); }
+	if (botWh != -1) { highlight_junction(botWh); }
+
 	if (parVisualize != -1 && chiVisualize == -1) {
 		// follow path 5-6 times then draw arrow, change
 		glColor3f(0.784, 0.12, 0.232);
@@ -1004,6 +1206,7 @@ void glArea::paintGL()
 		drawArrow(vertexList[parVisualize][0], vertexList[parVisualize][1], vertexList[parVisualize][2],
 			vertexList[chiVisualize][0], vertexList[chiVisualize][1], vertexList[chiVisualize][2], 0.1);	
 	}
+
 	glFlush();
 	update();
 }
