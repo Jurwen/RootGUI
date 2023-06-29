@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <assert.h>
+#include <queue>
 #include <algorithm>
 #define SCALE_FACTOR 0.005f
 GLfloat LightAmbient[] = { 0.5f, 0.5f, 0.5f, 1.0f };
@@ -45,7 +46,7 @@ void directedDFS(int at, int par, int ppjunc, const std::set<int>& junctions, co
 	}
 }
 
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs, map<int, std::vector<int> > &childVertex, vector<vector<int> > &juncAdj) {
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, map<int, int> nodalIndexStream, vector< vector<int> >& adj, vector<vector<int>>& adjMatrix, map<int, vector<int>>& juncToNodal, std::set<int> &junctions, map<int, int>& juncTotal, vector<int> & IDs, map<int, std::vector<int> > &childVertex, vector<vector<int> > &juncAdj) {
 	// ofstream fout("getSkeleton.txt");
 	
 	ifstream myFile;
@@ -56,7 +57,7 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 		radius.clear();
 		level.clear();
 		adj.clear();
-
+		juncTotal.clear();
 		string word, line;
 		double long verCoordinate;
 		int edgeIndices;
@@ -138,8 +139,60 @@ int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& ed
 				directedDFS(i, -1, -1, junctions, adj, level, childVertex, juncAdj);
 			}
 		}
+		vector<bool> checker(vertexData.size(), false);
+		for (int i = 0; i < edgeData.size(); i++) {
+			if (level[edgeData[i][0]] == 0 && level[edgeData[i][1]] == 1) {
+				if (!checker[edgeData[i][0]]) {
+					juncTotal[edgeData[i][0]] = -1;
+					checker[edgeData[i][0]] = true;
+				}
 
-		// fout << "Success" << endl;
+			}
+			if (level[edgeData[i][0]] == 1 && level[edgeData[i][1]] == 0) {
+				if (!checker[edgeData[i][1]]) {
+					juncTotal[edgeData[i][1]] = -1;
+					checker[edgeData[i][1]] = true;
+				}
+			}
+		}
+		vector<int> connectivity(vertexData.size());
+		for (int i = 0; i < vertexData.size(); i++) {
+			connectivity[i] = 0;
+		}
+
+		adjMatrix = createMatrix(edgeData, connectivity);
+		vector<int> mark(vertexData.size());
+		for (int j = 0; j < vertexData.size(); j++) {
+			mark[j] = 0;
+		}
+		for (auto i: juncTotal) {
+			queue<int> bfs;
+			int trace = i.first;
+			bfs.push(trace);
+			
+			vector<int> exitVertex;
+			while (!bfs.empty()) {
+				trace = bfs.front();
+				mark[trace] = 1;
+				bfs.pop();
+				for (auto connectV : adjMatrix[trace]) {
+					if (mark[connectV] == 0) {
+						mark[connectV] = 1;
+						if (level[connectV] != 0) {
+							if (level[connectV] == 2) {
+								//exitVertex.push_back(nodalIndexStream[connectV]);
+								exitVertex.push_back(connectV);
+							}
+							else if (level[connectV] == 1) {
+								bfs.push(connectV);
+							}
+						}
+					}
+				}
+			}
+			juncToNodal[i.first] = exitVertex;
+		}
+				// fout << "Success" << endl;
 		//From here, all the data from the file is been put into fileData. 
 		myFile.close();
 		return 1;
@@ -264,7 +317,7 @@ myMesh * ReaderOBj(string fname2) {
 	return meshs;
 }
 
-int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n, map<int, int>& juncWhorlAbove, map<int, int>& juncWhorlBelow, vector<int> &inord) {
+int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n, map<int, int>& nodalIndexStream, map<int, int>& juncWhorlAbove, map<int, int>& juncWhorlBelow, vector<int> &inord) {
 
 	ifstream myFile;
 	myFile.open(fileName);
@@ -274,7 +327,7 @@ int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileN
 		inord.clear();
 		juncWhorlAbove.clear();
 		juncWhorlBelow.clear();
-		nodes = { {},{} };
+		nodes = { /*{},{}*/ };
 		center = {};
 		n = { {},{},{} };
 		vector<vector<int>> totalWhorls;
@@ -338,7 +391,9 @@ int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileN
 				while (iss >> word) {
 					branchNum = word;
 					iss >> word;
-					if (word == 1) {
+					nodes.push_back(totalNodes[branchNum]);
+					nodalIndexStream[totalNodes[branchNum][0]] = nodes.size() - 1;
+					/*if (word == 1) {
 						for (int i = 0; i < totalNodes[branchNum].size(); i++) {
 							nodes[0].push_back(totalNodes[branchNum][i]);
 						}
@@ -347,7 +402,7 @@ int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileN
 						for (int i = 0; i < totalNodes[branchNum].size(); i++) {
 							nodes[1].push_back(totalNodes[branchNum][i]);
 						}
-					}
+					}*/
 				}
 			}
 			if (infoSection == 3) {
@@ -390,6 +445,8 @@ int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileN
 			}
 
 		}
+
+		whorls.totalWhorls = totalWhorls;
 		//From here, all the data from the file is been put into fileData. 
 		myFile.close();
 		return 1;
@@ -507,7 +564,7 @@ glArea::glArea(QWidget *parent) :QOpenGLWidget(parent) {
 	mesh = ReadOffFile("2020_PlantHaven_RT_591-4_2021-rewash_109um.off");
 	/*mesh = ReaderOBj("smooth.obj");*/
 	cout << "Sucessfully initiated mesh data..." << endl;
-	if (readAnnotation(whorls, nodalRoots, "591-4-topo-with-plane-annotations.txt", cent, n, juncWhorlAbove, juncWhorlBelow, whorls_inord) == 1) {
+	if (readAnnotation(whorls, nodalRoots, "591-4-topo-with-plane-annotations.txt", cent, n, nodalIndexStream, juncWhorlAbove, juncWhorlBelow, whorls_inord) == 1) {
 		cout << "Successfully initiated annotation data..." << endl;
 	}
 	isRotate = false;
@@ -541,14 +598,17 @@ glArea::~glArea()
 void glArea::sort_whorls() {
 	whorls_inord.clear();
 	set<int> w;
-	for (const auto &v : whorls.whorlAbove) {
+	for (const auto &v : juncTotal) {
+		w.insert(v.first);
+	}
+	/*for (const auto &v : whorls.whorlAbove) {
 		for (const auto &wh : v)
 			w.insert(wh);
 	}
 	for (const auto &v : whorls.whorlBelow) {
 		for (const auto &wh : v)
 			w.insert(wh);
-	}
+	}*/
 
 	int st = -1;
 	for (int i = 0; i < level.size(); i++) {
@@ -613,6 +673,7 @@ bool glArea::deleteWhorl(char c) {
 			juncWhorlAbove[whorls.whorlAbove[idx][i]] = -1;
 		}
 		whorls.whorlAbove.erase(whorls.whorlAbove.begin() + idx);
+		whorls.totalWhorls.erase(whorls.totalWhorls.begin() + idx);
 		for (int i = idx; i < whorls.whorlAbove.size(); i++) {
 			for(const auto &v : whorls.whorlAbove[i])
 				juncWhorlAbove[v]--;
@@ -626,6 +687,7 @@ bool glArea::deleteWhorl(char c) {
 			juncWhorlBelow[whorls.whorlBelow[idx][i]] = -1;
 		}
 		whorls.whorlBelow.erase(whorls.whorlBelow.begin() + idx);
+		whorls.totalWhorls.erase(whorls.totalWhorls.begin()+whorls.whorlAbove.size() + idx);
 		for (int i = idx; i < whorls.whorlBelow.size(); i++) {
 			for (const auto &v : whorls.whorlBelow[i])
 				juncWhorlAbove[v]--;
@@ -634,15 +696,7 @@ bool glArea::deleteWhorl(char c) {
 	return 1;
 }
 
-void glArea::draw_rootsAbove() {
-	glColor4f(1.0, 0.0, 0.0, 1.0);
-	glPointSize(3.0);
-	glBegin(GL_POINTS);
-	for (int i = 0; i < nodalRoots[0].size(); i++) {
-		glVertex3f(vertexList[nodalRoots[0][i]][0], vertexList[nodalRoots[0][i]][1], vertexList[nodalRoots[0][i]][2]);
-	}
-	glEnd();
-}
+
 
 void glArea::draw_plane() {
 	glColor4f(1.0, 0.0, 0.0, 0.5);
@@ -654,12 +708,33 @@ void glArea::draw_plane() {
 	glEnd();
 }
 
+void glArea::draw_rootsAbove() {
+	glColor4f(1.0, 0.0, 0.0, 1.0);
+	glPointSize(3.0);
+	glBegin(GL_POINTS);
+	for (int index = 0; index < nodalRoots.size(); index++) {
+		if (vertexList[nodalRoots[index][0]][2] <= cent[2] /*&& level[nodalRoots[index][1]] == 2*/) {
+			for (int i = 0; i < nodalRoots[index].size(); i++) {
+				glVertex3f(vertexList[nodalRoots[index][i]][0], vertexList[nodalRoots[index][i]][1], vertexList[nodalRoots[index][i]][2]);
+			}
+		}
+	}
+	glEnd();
+}
+
 void glArea::draw_rootsBelow() {
 	glColor4f(0.0, 0.0, 1.0, 1.0);
 	glPointSize(3.0);
 	glBegin(GL_POINTS);
-	for (int i = 0; i < nodalRoots[1].size(); i++) {
+	/*for (int i = 0; i < nodalRoots[1].size(); i++) {
 		glVertex3f(vertexList[nodalRoots[1][i]][0], vertexList[nodalRoots[1][i]][1], vertexList[nodalRoots[1][i]][2]);
+	}*/
+	for (int index = 0; index < nodalRoots.size(); index++) {
+		if (vertexList[nodalRoots[index][0]][2] > cent[2] && level[nodalRoots[index][1]] == 2) {
+			for (int i = 0; i < nodalRoots[index].size(); i++) {
+				glVertex3f(vertexList[nodalRoots[index][i]][0], vertexList[nodalRoots[index][i]][1], vertexList[nodalRoots[index][i]][2]);
+			}
+		}
 	}
 	glEnd();
 }
@@ -669,17 +744,29 @@ void glArea::draw_whorlsAbove() {
 	glPointSize(10.0);
 	glBegin(GL_POINTS);
 	vector<vector<vector<float>>> whorlBbox; //whorl bounding box: 
-	for (int i = 0; i < whorls.whorlAbove.size(); i++) {
+	whorls.whorlAbove= {};
+	for (int i = 0; i < whorls.totalWhorls.size(); i++) {
 		vector<vector<float>> oneBBox = { {},{},{} };
-		for (int j = 0; j < whorls.whorlAbove[i].size(); j++) {
-			int vertexNum = whorls.whorlAbove[i][j];
+		float zCenter = 0;
+		for (int j = 0; j < whorls.totalWhorls[i].size(); j++) {
+			int vertexNum = whorls.totalWhorls[i][j];
+			zCenter += vertexList[vertexNum][2];
 			oneBBox[0].push_back(vertexList[vertexNum][0]);
 			oneBBox[1].push_back(vertexList[vertexNum][1]);
 			oneBBox[2].push_back(vertexList[vertexNum][2]);
-			glVertex3f(vertexList[vertexNum][0], vertexList[vertexNum][1], vertexList[vertexNum][2]);
 		}
-		whorlBbox.push_back({ { *min_element(oneBBox[0].begin(),oneBBox[0].end())-3,*min_element(oneBBox[1].begin(),oneBBox[1].end())-3,*min_element(oneBBox[2].begin(),oneBBox[2].end())-3 },
-			{*max_element(oneBBox[0].begin(),oneBBox[0].end())+3,*max_element(oneBBox[1].begin(),oneBBox[1].end())+3,*max_element(oneBBox[2].begin(),oneBBox[2].end())+3} });
+		zCenter = zCenter / whorls.totalWhorls[i].size();
+		for (int j = 0; j < whorls.totalWhorls[i].size(); j++) {
+			int vertexNum = whorls.totalWhorls[i][j];
+			if (zCenter <= cent[2]) {
+				glVertex3f(vertexList[vertexNum][0], vertexList[vertexNum][1], vertexList[vertexNum][2]);
+			}
+		}
+		if (zCenter <= cent[2]) {
+			whorls.whorlAbove.push_back(whorls.totalWhorls[i]);
+			whorlBbox.push_back({ { *min_element(oneBBox[0].begin(),oneBBox[0].end()) - 3,*min_element(oneBBox[1].begin(),oneBBox[1].end()) - 3,*min_element(oneBBox[2].begin(),oneBBox[2].end()) - 3 },
+					{*max_element(oneBBox[0].begin(),oneBBox[0].end()) + 3,*max_element(oneBBox[1].begin(),oneBBox[1].end()) + 3,*max_element(oneBBox[2].begin(),oneBBox[2].end()) + 3} });
+		}
 	}
 	glEnd();
 	glBegin(GL_LINES);
@@ -728,8 +815,8 @@ void glArea::draw_whorlsAbove() {
 
 			glPopMatrix();
 		}
-		for (const auto &v : juncWhorlAbove) {
-			if (v.second == -1) {
+		for (const auto &v : juncTotal) {
+			if (v.second == -1 && vertexList[v.first][2] <= cent[2]) {
 				glPushMatrix();
 
 				glTranslatef(vertexList[v.first][0], vertexList[v.first][1], vertexList[v.first][2]);
@@ -751,19 +838,29 @@ void glArea::draw_whorlsBelow() {
 	glPointSize(10.0);
 	glBegin(GL_POINTS);
 	vector<vector<vector<float>>> whorlBbox; //whorl bounding box: 
-	for (int i = 0; i < whorls.whorlBelow.size(); i++) {
-		if (whorls.whorlBelow[i][0] == -1) continue;
+	whorls.whorlBelow = {};
+	for (int i = 0; i < whorls.totalWhorls.size(); i++) {
 		vector<vector<float>> oneBBox = { {},{},{} };
-		for (int j = 0; j < whorls.whorlBelow[i].size(); j++) {
-			int vertexNum = whorls.whorlBelow[i][j];
+		float zCenter = 0;
+		for (int j = 0; j < whorls.totalWhorls[i].size(); j++) {
+			int vertexNum = whorls.totalWhorls[i][j];
+			zCenter += vertexList[vertexNum][2];
 			oneBBox[0].push_back(vertexList[vertexNum][0]);
 			oneBBox[1].push_back(vertexList[vertexNum][1]);
 			oneBBox[2].push_back(vertexList[vertexNum][2]);
-			glVertex3f(vertexList[vertexNum][0], vertexList[vertexNum][1], vertexList[vertexNum][2]);
 		}
-		
-		whorlBbox.push_back({ { *min_element(oneBBox[0].begin(),oneBBox[0].end()) - 3,*min_element(oneBBox[1].begin(),oneBBox[1].end()) - 3,*min_element(oneBBox[2].begin(),oneBBox[2].end()) - 3 },
-			{*max_element(oneBBox[0].begin(),oneBBox[0].end()) + 3,*max_element(oneBBox[1].begin(),oneBBox[1].end()) + 3,*max_element(oneBBox[2].begin(),oneBBox[2].end()) + 3} });
+		zCenter = zCenter / whorls.totalWhorls[i].size();
+		for (int j = 0; j < whorls.totalWhorls[i].size(); j++) {
+			int vertexNum = whorls.totalWhorls[i][j];
+			if (zCenter > cent[2]) {
+				glVertex3f(vertexList[vertexNum][0], vertexList[vertexNum][1], vertexList[vertexNum][2]);
+			}
+		}
+		if (zCenter > cent[2]) {
+			whorls.whorlBelow.push_back(whorls.totalWhorls[i]);
+			whorlBbox.push_back({ { *min_element(oneBBox[0].begin(),oneBBox[0].end()) - 3,*min_element(oneBBox[1].begin(),oneBBox[1].end()) - 3,*min_element(oneBBox[2].begin(),oneBBox[2].end()) - 3 },
+					{*max_element(oneBBox[0].begin(),oneBBox[0].end()) + 3,*max_element(oneBBox[1].begin(),oneBBox[1].end()) + 3,*max_element(oneBBox[2].begin(),oneBBox[2].end()) + 3} });
+		}
 	}
 	glEnd();
 	glBegin(GL_LINES);
@@ -812,8 +909,8 @@ void glArea::draw_whorlsBelow() {
 
 			glPopMatrix();
 		}
-		for (const auto &v : juncWhorlBelow) {
-			if (v.second == -1) {
+		for(const auto &v : juncTotal) {
+			if (v.second == -1 && vertexList[v.first][2] > cent[2]) {
 				glPushMatrix();
 				glTranslatef(vertexList[v.first][0], vertexList[v.first][1], vertexList[v.first][2]);
 				glScalef(1 / 152.38, 1 / 152.38, 1 / 200.38);
@@ -838,7 +935,7 @@ bool glArea::addNewBox(int topJunc, int botJunc, bool above) {
 			}
 			else if (marking && whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) marking = 0;
 			if (marking || whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) 
-				if(juncWhorlAbove[whorls_inord[i]] != -1) return 0;
+				if(juncTotal[whorls_inord[i]] != -1) return 0;
 		}
 
 		marking = 0;
@@ -848,9 +945,25 @@ bool glArea::addNewBox(int topJunc, int botJunc, bool above) {
 				marking = 1;
 			}			
 			else if (marking && whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) marking = 0;
-			if (marking || whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) someWhorl.push_back(whorls_inord[i]), juncWhorlAbove[whorls_inord[i]] = whorls.whorlAbove.size();
+			if (marking || whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) someWhorl.push_back(whorls_inord[i]), juncWhorlAbove[whorls_inord[i]] = whorls.whorlAbove.size(), juncTotal[whorls_inord[i]] = whorls.whorlAbove.size();
 		}
-		whorls.whorlAbove.push_back(someWhorl);
+		int pos = 0;
+		double long zAxis = 0;
+		for (auto v : someWhorl) { zAxis += vertexList[v][2]; }
+		zAxis = zAxis / someWhorl.size();
+		for (auto v : whorls.whorlAbove) {
+			double long tempZ = 0;
+			for (auto tempJunction : v) {
+				tempZ += vertexList[tempJunction][2];
+			}
+			tempZ = tempZ / v.size();
+			if (tempZ < zAxis) {
+				pos++;
+			}
+			else break;
+		}
+		whorls.whorlAbove.insert(whorls.whorlAbove.begin() + pos, someWhorl);
+		whorls.totalWhorls.insert(whorls.totalWhorls.begin() + pos, someWhorl);
 	}
 	else {
 		bool marking = 0;
@@ -860,7 +973,7 @@ bool glArea::addNewBox(int topJunc, int botJunc, bool above) {
 			}
 			else if (marking && whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) marking = 0;
 			if (marking || whorls_inord[i] == topJunc || whorls_inord[i] == botJunc)
-				if (juncWhorlBelow[whorls_inord[i]] != -1) return 0;
+				if (juncTotal[whorls_inord[i]] != -1) return 0;
 		}
 
 		vector<int> someWhorl;
@@ -869,9 +982,25 @@ bool glArea::addNewBox(int topJunc, int botJunc, bool above) {
 				marking = 1;
 			}
 			else if (marking && whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) marking = 0;
-			if (marking || whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) someWhorl.push_back(whorls_inord[i]), juncWhorlBelow[whorls_inord[i]] = whorls.whorlBelow.size();
+			if (marking || whorls_inord[i] == topJunc || whorls_inord[i] == botJunc) someWhorl.push_back(whorls_inord[i]), juncWhorlBelow[whorls_inord[i]] = whorls.whorlBelow.size(), juncTotal[whorls_inord[i]] = whorls.whorlBelow.size();
 		}
-		whorls.whorlBelow.push_back(someWhorl);
+		int pos = 0;
+		double long zAxis = 0;
+		for (auto v : someWhorl) { zAxis += vertexList[v][2]; }
+		zAxis = zAxis / someWhorl.size();
+		for (auto v : whorls.whorlBelow) {
+			double long tempZ = 0;
+			for (auto tempJunction : v) {
+				tempZ += vertexList[tempJunction][2];
+			}
+			tempZ = tempZ / v.size();
+			if (tempZ < zAxis) {
+				pos++;
+			}
+			else break;
+		}
+		whorls.whorlBelow.insert(whorls.whorlBelow.begin() + pos, someWhorl);
+		whorls.totalWhorls.insert(whorls.totalWhorls.begin() + whorls.whorlAbove.size() + pos, someWhorl);
 	}
 
 	return 1;
@@ -1054,6 +1183,27 @@ void glArea::draw_lines() {
 	// fout << "Successfully drew lines" << endl;
 }
 
+void glArea::draw_rootsbyWhorls() {
+	for (int j = 0; j < whorls.totalWhorls.size(); j++) {
+		vector<int> nodalSet;
+		for (auto it: whorls.totalWhorls[j]) {
+			for (auto nodalIdx : juncToNodal[it]) {
+				nodalSet.push_back(nodalIndexStream[nodalIdx] );
+			}
+		}
+		COLOR colorByWhorl = GetColor(((double)j / 20 + (j % 2)*.5), 0, 1);
+		glColor4f(colorByWhorl.r, colorByWhorl.g, colorByWhorl.b, 1.0);
+		glPointSize(3.0);
+		glBegin(GL_POINTS);
+		for (auto it : nodalSet) {
+			for (auto nodalIt : nodalRoots[it]) {
+				glVertex3f(vertexList[nodalIt][0], vertexList[nodalIt][1], vertexList[nodalIt][2]);
+			}
+		}
+		glEnd();
+	}
+}
+
 // from stackoverflow
 void glArea::label_junction(int idx, float h) {
 	float xo = vertexList[idx][0]; // x coord
@@ -1069,6 +1219,7 @@ void glArea::label_junction(int idx, float h) {
 	auto curr = reinterpret_cast<const unsigned char*>(to_string(idx).c_str());
 
 	glFlush();
+	glColor3f(0, 1, 0);
 	glutStrokeString(GLUT_STROKE_ROMAN, (const unsigned char*)to_string(idx).c_str());
 	glFlush();
 
@@ -1079,7 +1230,7 @@ void glArea::label_junction(int idx, float h) {
 void glArea::draw_labels() {
 	float size = 0.5f;
 	float offsl = size * 0.7f;
-	glColor3d(0.0, 0.0, 0.0);
+	glColor3f(0, 1, 0);
 	//fout << "Color setting done" << "\n";
 
 	for (const int &i : junctions) {
@@ -1183,6 +1334,7 @@ void glArea::paintGL()
 	if (if_drawWhorlBelow&&annotation_activated == 2) {  draw_whorlsBelow(); }
 	if (if_drawNodeAbove&&annotation_activated == 2) { draw_rootsAbove(); }
 	if (if_drawNodeBelow&&annotation_activated == 2) { draw_rootsBelow(); }
+	if (if_drawNodeByWhorl&&annotation_activated == 2) { draw_rootsbyWhorls(); }
 	if (if_drawPlane&&annotation_activated == 2) { draw_plane(); }
 	if (editOn) { draw_labels(); }
 
@@ -1301,4 +1453,20 @@ void propagate(vector<vector<int>>& adj,
 				vertex, paridx, diff);
 		}
 	}
+}
+
+vector<vector<int>> createMatrix(vector<vector<int>> edgeList, vector<int>& connectivity) {
+	int col = int(connectivity.size());
+	vector<vector<int>> output(col);
+	for (int i = 0; i < edgeList.size(); i++) {
+		int vertA = edgeList[i][0];
+		int vertB = edgeList[i][1];
+		if (vertA != vertB) {
+			output[vertA].push_back(vertB);
+			output[vertB].push_back(vertA);
+			connectivity[vertA] = connectivity[vertA] + 1;
+			connectivity[vertB] = connectivity[vertB] + 1;
+		}
+	}
+	return output;
 }

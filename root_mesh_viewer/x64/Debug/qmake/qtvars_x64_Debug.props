@@ -1,8 +1,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
 <Qt_DEFINES_>_WINDOWS;UNICODE;_UNICODE;WIN32;WIN64;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB</Qt_DEFINES_>
-<Qt_INCLUDEPATH_>C:\Users\yiwen\Downloads\Root-GUI-master\Root-GUI-master\root_mesh_viewer\x64\Debug\qmake\temp;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtWidgets;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtGui;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtANGLE;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtCore;C:\Users\yiwen\Downloads\Root-GUI-master\Root-GUI-master\root_mesh_viewer\x64\Debug\qmake\temp;\include;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\mkspecs\win32-msvc</Qt_INCLUDEPATH_>
+<Qt_INCLUDEPATH_>C:\Users\yiwen\AppData\Local\Temp\ek1iyzul.00f;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtWidgets;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtGui;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtANGLE;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtCore;C:\Users\yiwen\AppData\Local\Temp\ek1iyzul.00f;\include;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\mkspecs\win32-msvc</Qt_INCLUDEPATH_>
 <Qt_STDCPP_></Qt_STDCPP_>
+<Qt_RUNTIME_>MultiThreadedDebugDLL</Qt_RUNTIME_>
 <Qt_CL_OPTIONS_>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding</Qt_CL_OPTIONS_>
 <Qt_LIBS_>D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\lib\qtmaind.lib;shell32.lib;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\lib\Qt5Widgetsd.lib;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\lib\Qt5Guid.lib;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\lib\Qt5Cored.lib</Qt_LIBS_>
 <Qt_LINK_OPTIONS_>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'"</Qt_LINK_OPTIONS_>
@@ -46,7 +47,7 @@
     <QtBkup_QtLibrarySearchPath
       ></QtBkup_QtLibrarySearchPath>
     <QtBkup_QtVars
-      >DEFINES=/Project/ItemDefinitionGroup/ClCompile/PreprocessorDefinitions;INCLUDEPATH=/Project/ItemDefinitionGroup/ClCompile/AdditionalIncludeDirectories;STDCPP=/Project/ItemDefinitionGroup/ClCompile/LanguageStandard;CL_OPTIONS=/Project/ItemDefinitionGroup/ClCompile/AdditionalOptions;LIBS=/Project/ItemDefinitionGroup/Link/AdditionalDependencies;LINK_OPTIONS=/Project/ItemDefinitionGroup/Link/AdditionalOptions</QtBkup_QtVars>
+      >DEFINES=/Project/ItemDefinitionGroup/ClCompile/PreprocessorDefinitions;INCLUDEPATH=/Project/ItemDefinitionGroup/ClCompile/AdditionalIncludeDirectories;STDCPP=/Project/ItemDefinitionGroup/ClCompile/LanguageStandard;RUNTIME=/Project/ItemDefinitionGroup/ClCompile/RuntimeLibrary;CL_OPTIONS=/Project/ItemDefinitionGroup/ClCompile/AdditionalOptions;LIBS=/Project/ItemDefinitionGroup/Link/AdditionalDependencies;LINK_OPTIONS=/Project/ItemDefinitionGroup/Link/AdditionalOptions</QtBkup_QtVars>
     <QtBkup_QMakeCodeLines
       ></QtBkup_QMakeCodeLines>
     <QtBkup_QtBuildConfig

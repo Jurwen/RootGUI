@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_mainPage_t {
-    QByteArrayData data[39];
-    char stringdata0[665];
+    QByteArrayData data[41];
+    char stringdata0[713];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -61,15 +61,17 @@ QT_MOC_LITERAL(26, 468, 22), // "nodalRootBelowCheckBox"
 QT_MOC_LITERAL(27, 491, 22), // "nodalRootAboveCheckBox"
 QT_MOC_LITERAL(28, 514, 17), // "showPlaneCheckBox"
 QT_MOC_LITERAL(29, 532, 21), // "skeletonColorComboBox"
-QT_MOC_LITERAL(30, 554, 15), // "editStateChange"
-QT_MOC_LITERAL(31, 570, 15), // "visualizeParent"
-QT_MOC_LITERAL(32, 586, 14), // "visualizeChild"
-QT_MOC_LITERAL(33, 601, 9), // "swapLastT"
-QT_MOC_LITERAL(34, 611, 15), // "editWhorlChange"
-QT_MOC_LITERAL(35, 627, 8), // "delWhorl"
-QT_MOC_LITERAL(36, 636, 8), // "addWhorl"
-QT_MOC_LITERAL(37, 645, 9), // "verifyTop"
-QT_MOC_LITERAL(38, 655, 9) // "verifyBot"
+QT_MOC_LITERAL(30, 554, 26), // "nodalRootsbyWhorlsCheckBox"
+QT_MOC_LITERAL(31, 581, 15), // "editStateChange"
+QT_MOC_LITERAL(32, 597, 15), // "visualizeParent"
+QT_MOC_LITERAL(33, 613, 14), // "visualizeChild"
+QT_MOC_LITERAL(34, 628, 9), // "swapLastT"
+QT_MOC_LITERAL(35, 638, 15), // "editWhorlChange"
+QT_MOC_LITERAL(36, 654, 8), // "delWhorl"
+QT_MOC_LITERAL(37, 663, 8), // "addWhorl"
+QT_MOC_LITERAL(38, 672, 9), // "verifyTop"
+QT_MOC_LITERAL(39, 682, 9), // "verifyBot"
+QT_MOC_LITERAL(40, 692, 20) // "planeAdjustorChanged"
 
     },
     "mainPage\0showSkelCheckBox\0\0_s\0"
@@ -86,9 +88,10 @@ QT_MOC_LITERAL(38, 655, 9) // "verifyBot"
     "whorlBelowCheckBox\0whorlAboveCheckBox\0"
     "nodalRootBelowCheckBox\0nodalRootAboveCheckBox\0"
     "showPlaneCheckBox\0skeletonColorComboBox\0"
-    "editStateChange\0visualizeParent\0"
-    "visualizeChild\0swapLastT\0editWhorlChange\0"
-    "delWhorl\0addWhorl\0verifyTop\0verifyBot"
+    "nodalRootsbyWhorlsCheckBox\0editStateChange\0"
+    "visualizeParent\0visualizeChild\0swapLastT\0"
+    "editWhorlChange\0delWhorl\0addWhorl\0"
+    "verifyTop\0verifyBot\0planeAdjustorChanged"
 };
 #undef QT_MOC_LITERAL
 
@@ -98,7 +101,7 @@ static const uint qt_meta_data_mainPage[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      36,   14, // methods
+      38,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -106,42 +109,44 @@ static const uint qt_meta_data_mainPage[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,  194,    2, 0x0a /* Public */,
-       4,    1,  197,    2, 0x0a /* Public */,
-       5,    1,  200,    2, 0x0a /* Public */,
-       6,    1,  203,    2, 0x0a /* Public */,
-       7,    1,  206,    2, 0x0a /* Public */,
-       8,    1,  209,    2, 0x0a /* Public */,
-       9,    1,  212,    2, 0x0a /* Public */,
-      10,    1,  215,    2, 0x0a /* Public */,
-      11,    1,  218,    2, 0x0a /* Public */,
-      12,    1,  221,    2, 0x0a /* Public */,
-      13,    1,  224,    2, 0x0a /* Public */,
-      14,    1,  227,    2, 0x0a /* Public */,
-      15,    0,  230,    2, 0x0a /* Public */,
-      16,    0,  231,    2, 0x0a /* Public */,
-      17,    0,  232,    2, 0x0a /* Public */,
-      18,    0,  233,    2, 0x0a /* Public */,
-      19,    1,  234,    2, 0x0a /* Public */,
-      20,    1,  237,    2, 0x0a /* Public */,
-      21,    1,  240,    2, 0x0a /* Public */,
-      22,    1,  243,    2, 0x0a /* Public */,
-      23,    1,  246,    2, 0x0a /* Public */,
-      24,    1,  249,    2, 0x0a /* Public */,
-      25,    1,  252,    2, 0x0a /* Public */,
-      26,    1,  255,    2, 0x0a /* Public */,
-      27,    1,  258,    2, 0x0a /* Public */,
-      28,    1,  261,    2, 0x0a /* Public */,
-      29,    1,  264,    2, 0x0a /* Public */,
-      30,    1,  267,    2, 0x0a /* Public */,
-      31,    0,  270,    2, 0x0a /* Public */,
-      32,    0,  271,    2, 0x0a /* Public */,
-      33,    0,  272,    2, 0x0a /* Public */,
-      34,    1,  273,    2, 0x0a /* Public */,
-      35,    0,  276,    2, 0x0a /* Public */,
-      36,    0,  277,    2, 0x0a /* Public */,
-      37,    0,  278,    2, 0x0a /* Public */,
-      38,    0,  279,    2, 0x0a /* Public */,
+       1,    1,  204,    2, 0x0a /* Public */,
+       4,    1,  207,    2, 0x0a /* Public */,
+       5,    1,  210,    2, 0x0a /* Public */,
+       6,    1,  213,    2, 0x0a /* Public */,
+       7,    1,  216,    2, 0x0a /* Public */,
+       8,    1,  219,    2, 0x0a /* Public */,
+       9,    1,  222,    2, 0x0a /* Public */,
+      10,    1,  225,    2, 0x0a /* Public */,
+      11,    1,  228,    2, 0x0a /* Public */,
+      12,    1,  231,    2, 0x0a /* Public */,
+      13,    1,  234,    2, 0x0a /* Public */,
+      14,    1,  237,    2, 0x0a /* Public */,
+      15,    0,  240,    2, 0x0a /* Public */,
+      16,    0,  241,    2, 0x0a /* Public */,
+      17,    0,  242,    2, 0x0a /* Public */,
+      18,    0,  243,    2, 0x0a /* Public */,
+      19,    1,  244,    2, 0x0a /* Public */,
+      20,    1,  247,    2, 0x0a /* Public */,
+      21,    1,  250,    2, 0x0a /* Public */,
+      22,    1,  253,    2, 0x0a /* Public */,
+      23,    1,  256,    2, 0x0a /* Public */,
+      24,    1,  259,    2, 0x0a /* Public */,
+      25,    1,  262,    2, 0x0a /* Public */,
+      26,    1,  265,    2, 0x0a /* Public */,
+      27,    1,  268,    2, 0x0a /* Public */,
+      28,    1,  271,    2, 0x0a /* Public */,
+      29,    1,  274,    2, 0x0a /* Public */,
+      30,    1,  277,    2, 0x0a /* Public */,
+      31,    1,  280,    2, 0x0a /* Public */,
+      32,    0,  283,    2, 0x0a /* Public */,
+      33,    0,  284,    2, 0x0a /* Public */,
+      34,    0,  285,    2, 0x0a /* Public */,
+      35,    1,  286,    2, 0x0a /* Public */,
+      36,    0,  289,    2, 0x0a /* Public */,
+      37,    0,  290,    2, 0x0a /* Public */,
+      38,    0,  291,    2, 0x0a /* Public */,
+      39,    0,  292,    2, 0x0a /* Public */,
+      40,    1,  293,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void, QMetaType::Int,    3,
@@ -172,6 +177,7 @@ static const uint qt_meta_data_mainPage[] = {
     QMetaType::Void, QMetaType::Int,    3,
     QMetaType::Void, QMetaType::Int,    3,
     QMetaType::Void, QMetaType::Int,    3,
+    QMetaType::Void, QMetaType::Int,    3,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -180,6 +186,7 @@ static const uint qt_meta_data_mainPage[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    3,
 
        0        // eod
 };
@@ -217,15 +224,17 @@ void mainPage::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 24: _t->nodalRootAboveCheckBox((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 25: _t->showPlaneCheckBox((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 26: _t->skeletonColorComboBox((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 27: _t->editStateChange((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 28: _t->visualizeParent(); break;
-        case 29: _t->visualizeChild(); break;
-        case 30: _t->swapLastT(); break;
-        case 31: _t->editWhorlChange((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 32: _t->delWhorl(); break;
-        case 33: _t->addWhorl(); break;
-        case 34: _t->verifyTop(); break;
-        case 35: _t->verifyBot(); break;
+        case 27: _t->nodalRootsbyWhorlsCheckBox((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 28: _t->editStateChange((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 29: _t->visualizeParent(); break;
+        case 30: _t->visualizeChild(); break;
+        case 31: _t->swapLastT(); break;
+        case 32: _t->editWhorlChange((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 33: _t->delWhorl(); break;
+        case 34: _t->addWhorl(); break;
+        case 35: _t->verifyTop(); break;
+        case 36: _t->verifyBot(); break;
+        case 37: _t->planeAdjustorChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -256,13 +265,13 @@ int mainPage::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 36)
+        if (_id < 38)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 36;
+        _id -= 38;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 36)
+        if (_id < 38)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 36;
+        _id -= 38;
     }
     return _id;
 }

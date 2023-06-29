@@ -1,0 +1,10 @@
+broseSkelClicked()
+Setting values for jetMax and Min
+5
+jetMaxSpinChanged Hierarchy 24.65
+24
+Success with jetMaxBox value setting...
+24
+skeletonColorComboBox
+24
+jetMaxSpinChanged Hierarchy 5

@@ -50,13 +50,15 @@ mainPage::mainPage(QWidget *parent)
 	QObject::connect(ui->inputValuePar, SIGNAL(clicked()), this, SLOT(visualizeParent()));
 	QObject::connect(ui->inputValueChi, SIGNAL(clicked()), this, SLOT(visualizeChild()));
 	QObject::connect(ui->swapLast, SIGNAL(clicked()), this, SLOT(swapLastT()));
-	
+	QObject::connect(ui->nodalRootsbyWhorls, SIGNAL(stateChanged(int)), this, SLOT(nodalRootsbyWhorlsCheckBox(int)));
+
 	QObject::connect(ui->deleteWhorlConf, SIGNAL(clicked()), this, SLOT(delWhorl()));
 	QObject::connect(ui->editWhorlOn, SIGNAL(stateChanged(int)), this, SLOT(editWhorlChange(int)));
 
 	QObject::connect(ui->addWhorl, SIGNAL(clicked()), this, SLOT(addWhorl()));
 	QObject::connect(ui->verifyTop, SIGNAL(clicked()), this, SLOT(verifyTop()));
 	QObject::connect(ui->verifyBot, SIGNAL(clicked()), this, SLOT(verifyBot()));
+	QObject::connect(ui->planeAdjustor, SIGNAL(valueChanged(int)), this, SLOT(planeAdjustorChanged(int)));
 }
 
 mainPage::~mainPage()
@@ -191,7 +193,7 @@ void mainPage::browseSkelClicked()
 		NULL/*, QFileDialog::DontUseNativeDialog*/);
 	ui->skelFileLabel->setText(skel_file);
 	QByteArray skel_byteArray = skel_file.toLatin1();
-	if (getSkeleton(area->vertexList, area->edgeList, skel_byteArray.data(), area->level, area->radius, area->adjVertex, area->junctions, area->IDs, area->childVertex, area->juncAdj) == 1) {
+	if (getSkeleton(area->vertexList, area->edgeList, skel_byteArray.data(), area->level, area->radius, area->nodalIndexStream, area->adjVertex, area->adjMatrix, area->juncToNodal, area->junctions, area->juncTotal, area->IDs, area->childVertex, area->juncAdj) == 1) {
 		area->if_drawWhorlAbove = false;
 		area->if_drawWhorlBelow = false;
 		area->if_drawNodeAbove = false;
@@ -231,7 +233,7 @@ void mainPage::browseAnnotationClicked()
 		NULL/*, QFileDialog::DontUseNativeDialog*/);
 	ui->annotationFileLabel->setText(annotation_file);
 	QByteArray annotation_byteArray = annotation_file.toLatin1();
-	if (readAnnotation(area->whorls, area->nodalRoots, annotation_byteArray.data(), area->cent, area->n, area->juncWhorlAbove, area->juncWhorlBelow, area->whorls_inord) == 1 && area->annotation_activated == 1) {
+	if (readAnnotation(area->whorls, area->nodalRoots, annotation_byteArray.data(), area->cent, area->n, area->nodalIndexStream, area->juncWhorlAbove, area->juncWhorlBelow, area->whorls_inord) == 1 && area->annotation_activated == 1) {
 		area->if_drawWhorlAbove = false;
 		area->if_drawWhorlBelow = false;
 		area->if_drawNodeAbove = false;
@@ -243,6 +245,7 @@ void mainPage::browseAnnotationClicked()
 		ui->nodalRootBelow->setChecked(false);
 		ui->showPlane->setChecked(false);
 		area->annotation_activated = 2;
+		area->planeAnchor = area->cent[2]; // used for storing the original plane location.
 		area->sort_whorls();
 		cout << "Successfully initiated annotation data... " << endl;
 	}
@@ -429,6 +432,16 @@ void mainPage::visualizeChild() {
 	}
 }
 
+void mainPage::nodalRootsbyWhorlsCheckBox(int _s)
+{
+	if (_s == Qt::Checked) {
+		area->if_drawNodeByWhorl = true;
+	}
+	else {
+		area->if_drawNodeByWhorl = false;
+	}
+}
+
 void mainPage::swapLastT() {
 	if (area->parVisualize != -1 && area->chiVisualize != -1) {
 		int schi = area->chiVisualize;
@@ -489,20 +502,22 @@ void mainPage::addWhorl() {
 	int cind2 = qs.toInt(&flag2);
 
 	if (flag1 && flag2) {
-		if (area->juncWhorlAbove.count(cind) && area->juncWhorlAbove.count(cind2)) {
-			if (area->addNewBox(cind, cind2, 1)) {
-				ui->statusBar->showMessage("successfully added whorl to above");
-				area->topWh = -1, area->botWh = -1;
+		if (area->juncTotal.count(cind) && area->juncTotal.count(cind2)) {
+			if ((area->vertexList[cind][2] + area->vertexList[cind2][2])/2 <= area->cent[2]) {
+				if (area->addNewBox(cind, cind2, 1)) {
+					ui->statusBar->showMessage("successfully added whorl to above");
+					area->topWh = -1, area->botWh = -1;
+				}
+				else ui->statusBar->showMessage("whorl addition failed, please try again");
+			}else{
+				if (area->addNewBox(cind, cind2, 0)) {
+					ui->statusBar->showMessage("successfully added whorl to below");
+					area->topWh = -1, area->botWh = -1;
+				}
+				else ui->statusBar->showMessage("whorl addition failed, please try again");
 			}
-			else ui->statusBar->showMessage("whorl addition failed, please try again");
 		}
-		else if (area->juncWhorlBelow.count(cind) && area->juncWhorlBelow.count(cind2)) {
-			if (area->addNewBox(cind, cind2, 0)) {
-				ui->statusBar->showMessage("successfully added whorl to below");
-				area->topWh = -1, area->botWh = -1;
-			}
-			else ui->statusBar->showMessage("whorl addition failed, please try again");
-		} else ui->statusBar->showMessage("invalid junctions, please try again");
+		else ui->statusBar->showMessage("invalid junctions, please try again");
 	}
 }
 
@@ -532,4 +547,9 @@ void mainPage::verifyBot() {
 			//area->ind.push_back(cind);
 		}
 	}
+}
+
+void mainPage::planeAdjustorChanged(int _s) {
+	ui->statusBar->showMessage("adjusting the soil plane location");
+	area->cent[2] = area->planeAnchor + (_s - 50) * 10;
 }

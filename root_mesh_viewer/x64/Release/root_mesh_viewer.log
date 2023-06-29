@@ -1,12 +1,2 @@
-﻿  uic mainPage.ui
-  rcc mainPage.qrc
-  moc mainPage.h
-  moc glArea.h
-   RCC: Warning: No resources in 'C:\Users\xiaog\Documents\GitHub\RootGUI\root_mesh_viewer\mainPage.qrc'.
-  glArea.cpp
-  mainPage.cpp
-  main.cpp
-  qrc_mainPage.cpp
-  moc_mainPage.cpp
-  moc_glArea.cpp
-  root_mesh_viewer.vcxproj -> C:\Users\xiaog\Documents\GitHub\RootGUI\x64\Release\root_mesh_viewer.exe
+﻿  glArea.cpp
+  root_mesh_viewer.vcxproj -> C:\Users\yiwen\source\repos\Jurwen\RootGUI\x64\Release\root_mesh_viewer.exe

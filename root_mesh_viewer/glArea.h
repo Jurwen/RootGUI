@@ -42,6 +42,7 @@ typedef struct myMesh {
 typedef struct Whorls {
 	vector<vector<int>> whorlAbove;
 	vector<vector<int>> whorlBelow;
+	vector<vector<int>> totalWhorls;
 } Whorls;
 
 
@@ -53,7 +54,7 @@ class glArea :
 public: 
 	glArea(QWidget *parent = nullptr);
 	~glArea();
-	bool if_face, if_line, if_drawWhorlAbove, if_drawWhorlBelow, if_drawNodeAbove, if_drawNodeBelow, if_drawPlane;
+	bool if_face, if_line, if_drawWhorlAbove, if_drawWhorlBelow, if_drawNodeByWhorl, if_drawNodeAbove, if_drawNodeBelow, if_drawPlane;
 	float alpha;
 	float line_width;
 	int line_color;
@@ -77,6 +78,7 @@ public:
 	vector<vector<int>> edgeList;
 	
 	vector<vector<int>> adjVertex;
+	vector<vector<int>> adjMatrix;
 	std::set<int> junctions;
 	vector<int> IDs;
 
@@ -84,8 +86,9 @@ public:
 	map<int, std::vector<int> > childVertex;
 
 	vector<int> whorls_inord;
-	map<int, int> juncWhorlAbove, juncWhorlBelow;
-
+	map<int, int> juncWhorlAbove, juncWhorlBelow, juncTotal;
+	map<int, vector<int>> juncToNodal;
+	map<int, int> nodalIndexStream;
 	vector<double long> radius;
 	vector<int> level;
 	void adjustView();
@@ -104,6 +107,7 @@ public:
 	void sort_whorls();
 	bool deleteWhorl(char c);
 	bool addNewBox(int topJunc, int botJunc, bool above);
+	float planeAnchor;
 
 protected:
 	void initializeGL();
@@ -114,7 +118,8 @@ protected:
 	void mouseMoveEvent(QMouseEvent *event);    
 	void mouseReleaseEvent(QMouseEvent *event);
 	void wheelEvent(QWheelEvent * event);
-	
+
+	void draw_rootsbyWhorls();
 	void draw_lines();
 	void draw_whorlsAbove();
 	void draw_whorlsBelow();
@@ -152,13 +157,12 @@ myMesh * ReaderOBj(string fname2);
 myMesh * ReadOffFile(const char *filename);
 vector<string> split(const string &str, const string &pattern);
 void get_normal(Face& face);
-int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, vector< vector<int> >& adj, std::set<int>& junctions, vector<int> & IDs, map<int, std::vector<int> > &childVertex, std::vector<vector<int> > &juncAdj);
-int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n, map<int, int>& juncWhorlAbove, map<int, int>& juncWhorlBelow, vector<int> &inord);
+int getSkeleton(vector<vector<double long>>& vertexData, vector<vector<int>>& edgeData, const char* fileName, vector<int>& level, vector<double long>& radius, map<int, int> nodalIndexStream, vector< vector<int> >& adj, vector<vector<int>>& adjMatrix, map<int, vector<int>>& juncToNodal, std::set<int>& junctions, map<int, int>& juncTotal, vector<int> & IDs, map<int, std::vector<int> > &childVertex, std::vector<vector<int> > &juncAdj);
+int readAnnotation(Whorls& whorls, vector<vector<int>>& nodes, const char* fileName, vector<float>& center, vector<vector<float>>& n, map<int, int>& nodalIndexStream, map<int, int>& juncWhorlAbove, map<int, int>& juncWhorlBelow, vector<int> &inord);
 
 //jetcolor:
 COLOR GetColor(double v, double vmin, double vmax);
-
 void propagate(vector<vector<int>>& adj, vector<int> &level, int &hierarchyCap, int v, int pv, int paridx, int diff);
 void dfsid(int at, int par, vector< vector<int> >& adj, std::set<int> &junctions, vector<int> & IDs);
-
+vector<vector<int>> createMatrix(vector<vector<int>> edgeList, vector<int>& connectivity);
 void directedDFS(int at, int par, int ppjunc, const std::set<int> &junctions, const vector<vector<int>> &adj, const vector<int> &level, map<int, std::vector<int> > &childVertex, std::vector<vector<int>> &juncAdj);

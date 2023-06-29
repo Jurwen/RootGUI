@@ -42,7 +42,7 @@ public slots:
 	void nodalRootAboveCheckBox(int _s);
 	void showPlaneCheckBox(int _s);
 	void skeletonColorComboBox(int _s);
-
+	void nodalRootsbyWhorlsCheckBox(int _s);
 	void editStateChange(int _s);
 	//void addCurValue();
 	void visualizeParent();
@@ -54,6 +54,8 @@ public slots:
 	void addWhorl();
 	void verifyTop();
 	void verifyBot();
+	void planeAdjustorChanged(int _s);
+
 private:
     Ui::mainPageClass *ui;
 	glArea *area;

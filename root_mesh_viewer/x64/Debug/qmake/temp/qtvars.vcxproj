@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\yiwen\Downloads\Root-GUI-master\Root-GUI-master\root_mesh_viewer\x64\Debug\qmake\temp;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtWidgets;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtGui;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtANGLE;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtCore;C:\Users\yiwen\Downloads\Root-GUI-master\Root-GUI-master\root_mesh_viewer\x64\Debug\qmake\temp;\include;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\yiwen\AppData\Local\Temp\ek1iyzul.00f;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtWidgets;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtGui;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtANGLE;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\include\QtCore;C:\Users\yiwen\AppData\Local\Temp\ek1iyzul.00f;\include;D:\Qt\Qt5.11.0\5.11.0\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>.\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
