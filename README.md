@@ -1,7 +1,9 @@
  # Graphical User Interface for Maize Roots
 
 This Graphical User Interface is intended for visualizing results from the following paper: 
+
 TopoRoot: A method for computing hierarchy and fine-grained traits of maize roots from X-ray CT images
+
 The paper can be found in here: https://rdcu.be/cC9Ng
 
 The tool can be directly used by opening the exe file in the release package. In case for any need for customization, the source code is also included in this repository. The steps are the following: 
@@ -16,14 +18,43 @@ The tool can be directly used by opening the exe file in the release package. In
 
 # How to use: 
 
-- Navigate to the RootGUI/release package/ directory, and double click on the root_mesh_viewer.exe application. This will open the user interface. Click on select .ply and select .txt to load the outputs of TopoRoot.
-![image](https://github.com/Jurwen/RootGUI/assets/46691179/ffa712a6-eb8c-4196-a816-014f9dc391fd)
+1. Navigate to the RootGUI/release package/ directory, and double click on the root_mesh_viewer.exe application. This will open the user interface. Click on select .ply and select .txt to load the outputs of TopoRoot.
 
-  
-- Load skeleton/mesh/annotation file accordingly. Once the mesh file is loaded, you can see the visualization on the right. 
-- To change the perspective of viewing, please use your mouse. To rotation, drag with left button. To translate, drag with right button. To zoom in/out, use your middle button to scroll. 
-- Once, the skeleton file and annotation file is loaded, you can have three ways to view the skeleton. Normal option means all black on the skeleton; Two other ways are coloring by radius or hierarchy. You can adjust radius range that you are interested once the skeleton is colored according to radius. All box options are only available when you loaded in a correct annotation file. Once they are marked, the according traits will appear. 
-- Please remind that Once viewing the traits, have a correct correspondence between skeleton and annotation file. 
+![image](https://github.com/Jurwen/RootGUI/assets/46691179/7b2d47ef-40ef-40ac-896c-b60e0be5fe8a)
+
+2. Switch to the Mesh tab, and click Select .off . Select the .off file with the same name as the .ply file (the name of your sample).
+
+After clicking open, the surrounding shape (the result of topological simplification) will be loaded in.
+
+![image](https://github.com/Jurwen/RootGUI/assets/46691179/d7862acc-722f-40bf-acb9-951e84387452)
+
+Mouse controls:
+
+- Rotate: drag left mouse button
+- Translate: drag right mouse button
+- Zoom: Click down on middle scroll of the mouse, and drag up and down.
+
+3. To view the radius level of the skeleton, change the "Skeleton Color" option from Normal Coloring(Black) to Color by Radius. Cooler colors (dark blue) represent lower radius levels (thinner roots), while warmer colors (green, yellow, red, etc.) represent higher radius levels (thicker roots which are closer to the stem).
+
+![image](https://github.com/Jurwen/RootGUI/assets/46691179/03932354-9e3f-41c4-82f8-5367a7d041cb)
+
+4. To view the hierarchy level, change the "Skeleton Color" option from Normal Coloring(Black) to Color by Hierarchy. Cooler colors (dark blue) represent lower hierarchy levels (starting from the stem), while warmer colors (green, yellow, red, etc.) represent higher hierarchy levels (higher-order lateral roots).
+
+![image](https://github.com/Jurwen/RootGUI/assets/46691179/9f5d0384-efdd-4a2b-add1-42a6ee262614)
+
+5. To filter the view of the hierarchy, toggle the checkboxes in the left panel of the Skeleton tab. For example to only view the stem path uncheck the other boxes.
+
+![image](https://github.com/Jurwen/RootGUI/assets/46691179/b773e952-d93c-4a5a-b1db-fc39e04d415e)
+
+6. After loading in the annotation file, the GUI can visualize the locations of the soil pland and whorls. These can be toggled at the skeleton tab.
+
+6.1 Soil Plane Visualization and Editing: 
+
+6.2 Whorl Visualization and Editing: 
+
+6.3 Soil Plane Visualization and Editing: 
+
+
 
 Contact: 
 - Dan Zeng (danzeng@wustl.edu)
