@@ -46,13 +46,25 @@ Mouse controls:
 
 ![image](https://github.com/Jurwen/RootGUI/assets/46691179/b773e952-d93c-4a5a-b1db-fc39e04d415e)
 
-6. After loading in the annotation file, the GUI can visualize the locations of the soil pland and whorls. These can be toggled at the skeleton tab.
+6. After loading in the annotation file, the GUI can visualize the locations of the soil pland and whorls. These can be toggled at the skeleton tab. The 
 
-6.1 Soil Plane Visualization and Editing: 
+6.1 Soil Plane Visualization
 
-6.2 Whorl Visualization and Editing: 
+![image](https://github.com/Jurwen/RootGUI/assets/46691179/5ccee109-e81e-49df-82b4-37d0be5d59c1)
 
-6.3 Soil Plane Visualization and Editing: 
+Roots above and below the plane: (red represents information above the soil plane, and blue represents info below the plane.)
+
+![image](https://github.com/Jurwen/RootGUI/assets/46691179/6a5cdac5-07dd-4e78-a249-78c20df080e8)
+
+6.2 Whorl Visualization (red represents information above the soil plane, and blue represents info below the plane.)
+
+![image](https://github.com/Jurwen/RootGUI/assets/46691179/655c05f9-8cbf-41d2-a618-2509a2953dda)
+
+Nodal roots colored by their originated whorl: (Neighboring colors )
+
+![image](https://github.com/Jurwen/RootGUI/assets/46691179/c2362298-df22-4f01-b349-2dbade64523d)
+
+
 
 
 
